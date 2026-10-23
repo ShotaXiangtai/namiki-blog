@@ -7,12 +7,11 @@ import { getRelativeUrl } from '../utils/url';
   <div class="max-w-4xl mx-auto px-4 sm:px-6">
     <div class="flex flex-col sm:flex-row items-center justify-between gap-6 pb-8 border-b border-gray-100">
       <div class="flex items-center gap-3">
-        <div class="w-7 h-7 rounded-lg bg-[#2cb696] flex items-center justify-center text-white font-bold text-sm">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-          </svg>
-        </div>
+        <img 
+          src={getRelativeUrl(SITE_CONFIG.avatar)} 
+          alt={SITE_CONFIG.title} 
+          class="w-7 h-7 rounded-full border border-gray-200 object-cover shadow-2xs"
+        />
         <span class="font-bold text-gray-800 text-base">{SITE_CONFIG.title}</span>
       </div>
 

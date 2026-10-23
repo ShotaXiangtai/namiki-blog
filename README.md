@@ -1,125 +1,118 @@
 # 並木秀作のブログ (namiki-blog)
 
-note風のシンプルで洗練されたデザインの静的ブログです。  
-Astro + Tailwind CSS で構築されており、GitHub Pages で高速かつ完全に無料で公開・運用できます。
+並木秀作の個人ブログです。  
+白と余白を大切にしたシンプルで清潔感のあるデザインを採用し、Astro で構築された超高速な静的ブログです。  
+カスタムドメイン **[https://blog.vcmc.jp/](https://blog.vcmc.jp/)**（GitHub Pages）にて自動公開・運用されています。
+
+---
+
+## 🌐 公開サイト
+
+- **ブログ URL**: [https://blog.vcmc.jp/](https://blog.vcmc.jp/)
+- **GitHub リポジトリ**: [https://github.com/ShotaXiangtai/namiki-blog](https://github.com/ShotaXiangtai/namiki-blog)
 
 ---
 
 ## 🌟 特徴
 
-- ✍️ **note風の洗練されたUI/UX**
-  - 白と余白を活かしたミニマルで美しいデザイン
-  - noteの象徴的なグリーンアクセント（`#2cb696`）
-  - 心地よいフォント・行間・タイポグラフィ
-- ❤️ **note風「スキ（♡）」ボタン**
-  - クリックするとハートが弾けるアニメーション
-  - カウントアップ＆LocalStorage保存（再読時もスキ済み状態を保持）
-- 👤 **クリエイタープロフィール & フォロー機能**
-  - カバー画像、丸アバター、自己紹介
-  - フォローボタン（トグル切り替え＆状態保存）
-- 🏷️ **タグ・ハッシュタグ機能**
-  - noteのような `#タグ` による記事の分類・一覧絞り込み
+- ✍️ **シンプルで美しいタイポグラフィ**
+  - 白と余白を活かしたミニマルで落ち着いたデザイン
+  - 長文でも心地よく読めるフォント・行間・余白設計
+- ❤️ **オリジナル「いいね（♡）」機能**
+  - 記事末尾のハートボタンをクリックするとアニメーションとともにカウントアップ
+  - LocalStorage に状態が保存され、再訪時もいいね状態をキープ
+- 👤 **個人専用プロフィール**
+  - カバー画像、丸型アバター、自己紹介、X (Twitter)・GitHub へのリンク
+- 🏷️ **ハッシュタグ・タグ別分類**
+  - `#ブログ` などのタグで記事を分類し、タグ一覧から絞り込み可能
 - 🔍 **高速インクリメンタル検索**
-  - ヘッダーの虫眼鏡アイコンまたは `Ctrl + K` / `Cmd + K` で瞬時に記事を検索
-- 📱 **完全レスポンシブ対応**
-  - PC・タブレット・スマートフォンすべてで読みやすいレイアウト
-- 🚀 **GitHub Pages & GitHub Actions 完全対応**
-  - `main` ブランチに push するだけで自動ビルド＆自動デプロイ
-
----
-
-## 🚀 GitHub Pages への公開手順
-
-以下の4ステップで、すぐに世界中にブログを公開できます！
-
-### 1. GitHub で新しいリポジトリを作成
-1. GitHub にログインし、[新しいリポジトリを作成 (New repository)](https://github.com/new) を開きます。
-2. リポジトリ名を `namiki-blog` にします（※パブリック: Public 推奨）。
-3. 「README」や「.gitignore」の追加チェックは**外した状態（空のリポジトリ）**で作成します。
-
-### 2. ローカルからリポジトリを push
-ターミナル（PowerShell等）で以下のコマンドを実行します：
-
-```bash
-# GitHubのURLを設定（ユーザー名をあなたのGitHubユーザー名に置き換えてください）
-git remote add origin https://github.com/<あなたのGitHubユーザー名>/namiki-blog.git
-
-# mainブランチをpush
-git branch -M main
-git push -u origin main
-```
-
-### 3. GitHub Pages の設定を有効化
-1. GitHubの該当リポジトリの **Settings** タブを開きます。
-2. 左メニューの **Pages** を選択します。
-3. **Build and deployment** の **Source** を **`GitHub Actions`** に変更します。
-
-これだけで、`.github/workflows/deploy.yml` が自動起動し、数分で `https://<あなたのGitHubユーザー名>.github.io/namiki-blog/` にブログが公開されます！
+  - ヘッダーの虫眼鏡アイコンまたは `Ctrl + K`（Macは `Cmd + K`）で全記事を瞬時に検索
+- 🚀 **GitHub Actions による完全自動デプロイ**
+  - `main` ブランチに push するだけで、自動的にビルドされ `https://blog.vcmc.jp/` へ即時反映
 
 ---
 
 ## 📝 新しい記事の書き方
 
-`src/content/blog/` ディレクトリの中に新しい Markdown ファイル（例: `my-new-post.md`）を作成するだけです。
+記事を追加・編集する手順はとてもシンプルです。
 
-### 記事テンプレート:
+### 1. Markdown ファイルを作成
+[`src/content/blog/`](src/content/blog/) ディレクトリに新しい `.md` ファイル（例: `my-article.md`）を作成します。
+
+### 2. 記事のテンプレート
 
 ```markdown
 ---
 title: "記事のタイトルをここに書きます"
-description: "記事の要約や抜粋を1〜2行で記述します。"
+description: "記事の概要や抜粋を1〜2行で記述します。"
 pubDate: 2026-10-24
-heroImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=80"
-tags: ["日常", "読書", "雑記"]
+heroImage: "/images/cover.jpg"
+tags: ["ブログ", "日常"]
 pinned: false
 likes: 0
 ---
 
 ここから本文を書きます。
 
-## 見出し
+## 見出し（H2）
 
-通常の Markdown 記法がそのまま利用できます。
+通常の Markdown 記法がそのまま使用できます。
 
 - 箇条書きリスト
-- **太字**
-- > 引用文
+- **太字テキスト**
+- > 引用ブロック
 
 ```
 
-ファイルを保存して git commit & push すれば、自動的にブログへ反映されます。
+### 3. GitHub に push して公開
+ファイルを保存し、ターミナルで以下を実行します：
+
+```bash
+git add .
+git commit -m "新しい記事を追加: 記事のタイトル"
+git push origin main
+```
+
+push 後、約30秒〜1分で自動的にビルドされ公開サイトへ反映されます。
 
 ---
 
-## ⚙️ カスタマイズ設定
+## 🖼️ 画像の変更方法
 
-### ブログ情報・著者プロフィールの変更
-[`src/config.ts`](file:///c:/プロジェクト/ぶろぐ/並木秀作のぶろぐ/src/config.ts) でプロフィールやURLを簡単に変更できます：
+- **アバター画像（アイコン）**:  
+  [`public/images/avatar.jpg`](public/images/avatar.jpg) を新しい画像ファイルで上書きします。
+- **ヘッダー（カバー）画像**:  
+  [`public/images/cover.jpg`](public/images/cover.jpg) を新しい画像ファイルで上書きします。
+
+※画像を差し替えた後は、ブラウザのキャッシュ対策として [`src/config.ts`](src/config.ts) の `?v=2` の数字を `?v=3` のように更新してコミットすると、閲覧者全員に即時反映されます。
+
+---
+
+## ⚙️ プロフィールや設定の変更
+
+[`src/config.ts`](src/config.ts) を編集することで、著者名や自己紹介文、SNSリンクなどを簡単に変更できます：
 
 ```typescript
 export const SITE_CONFIG = {
   title: '並木秀作のブログ',
-  description: '思考の断片、読書記録、日々の暮らしと道具についてのnote風ブログです。',
+  description: '並木秀作の個人ブログです。日々の思考や技術、好きなモノについて綴っています。',
   author: '並木 秀作',
-  bio: '日々の思考や感じたこと、好きな本や暮らしの道具について綴っています。',
-  avatar: 'アバター画像のURL',
-  coverImage: 'カバー画像のURL',
-  githubUrl: 'https://github.com/<あなたのユーザー名>/namiki-blog',
-  xUrl: 'https://x.com',
+  handle: '@ShusakuNamiki',
+  bio: '日々の思考や技術、好きなモノについて綴る個人ブログです。',
+  avatar: '/images/avatar.jpg?v=2',
+  coverImage: '/images/cover.jpg?v=2',
+  githubUrl: 'https://github.com/ShotaXiangtai/namiki-blog',
+  xUrl: 'https://x.com/ShusakuNamiki',
   license: 'CC BY 4.0 / MIT',
 };
 ```
-
-### リポジトリ名やURLの変更
-[`astro.config.mjs`](file:///c:/プロジェクト/ぶろぐ/並木秀作のぶろぐ/astro.config.mjs) 内で `repoName` や `site` を変更できます。
-もし `<ユーザー名>.github.io` という名前のリポジトリ（ユーザーサイト）にする場合は、`base: '/'` に変更してください。
 
 ---
 
 ## 💻 ローカル開発コマンド
 
 ```bash
-# 開発サーバー起動 (http://localhost:4321)
+# 開発サーバー起動 (http://localhost:4321 で確認可能)
 npm run dev
 
 # 本番用静的ビルド

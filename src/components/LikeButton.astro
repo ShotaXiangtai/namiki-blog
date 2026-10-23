@@ -4,7 +4,7 @@ interface Props {
   initialLikes?: number;
 }
 
-const { postId, initialLikes = 10 } = Astro.props;
+const { postId, initialLikes = 0 } = Astro.props;
 ---
 
 <div class="my-10 flex flex-col items-center justify-center gap-3">
@@ -13,7 +13,7 @@ const { postId, initialLikes = 10 } = Astro.props;
     data-post-id={postId}
     data-initial-likes={initialLikes}
     class="group relative flex items-center gap-3 px-6 py-3 rounded-full border-2 border-gray-200 bg-white hover:border-[#ea3943]/40 hover:bg-rose-50/40 text-gray-700 transition-all duration-200 active:scale-95 shadow-sm"
-    aria-label="記事にスキをつける"
+    aria-label="記事をいいねする"
   >
     <!-- ハートSVG -->
     <svg 
@@ -30,13 +30,13 @@ const { postId, initialLikes = 10 } = Astro.props;
     </svg>
 
     <div class="flex items-center gap-1.5 text-base font-bold">
-      <span id="like-text">スキ</span>
+      <span id="like-text">いいね</span>
       <span id="like-count" class="text-gray-500 group-hover:text-gray-900 transition-colors">{initialLikes}</span>
     </div>
   </button>
 
   <p id="like-message" class="text-xs text-gray-400 font-medium transition-opacity duration-300">
-    クリエイターにスキを届ける
+    記事をいいねで応援
   </p>
 </div>
 
@@ -64,7 +64,7 @@ const { postId, initialLikes = 10 } = Astro.props;
         heartIcon.classList.remove('text-gray-400');
         heartIcon.classList.add('text-[#ea3943]', 'fill-current');
         if (likeMessage) {
-          likeMessage.textContent = 'スキを届けました！ありがとうございます ✨';
+          likeMessage.textContent = 'いいね！ありがとうございます ✨';
           likeMessage.classList.add('text-[#ea3943]');
           likeMessage.classList.remove('text-gray-400');
         }
@@ -74,7 +74,7 @@ const { postId, initialLikes = 10 } = Astro.props;
         heartIcon.classList.add('text-gray-400');
         heartIcon.classList.remove('text-[#ea3943]', 'fill-current');
         if (likeMessage) {
-          likeMessage.textContent = 'クリエイターにスキを届ける';
+          likeMessage.textContent = '記事をいいねで応援';
           likeMessage.classList.remove('text-[#ea3943]');
           likeMessage.classList.add('text-gray-400');
         }
@@ -88,7 +88,7 @@ const { postId, initialLikes = 10 } = Astro.props;
       currentLikes += isLiked ? 1 : -1;
       localStorage.setItem(storageKey, String(isLiked));
 
-      // ハートのポンッという弾けるアニメーション
+      // ハートのアニメーション
       heartIcon.classList.add('scale-125');
       setTimeout(() => {
         heartIcon.classList.remove('scale-125');
