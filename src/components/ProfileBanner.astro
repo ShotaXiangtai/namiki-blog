@@ -6,123 +6,77 @@ interface Props {
   totalPosts?: number;
 }
 
-const { totalPosts = 3 } = Astro.props;
+const { totalPosts = 1 } = Astro.props;
 ---
 
 <div class="bg-white border-b border-[#e8e8e8] mb-8">
   <!-- カバー画像 -->
-  <div class="h-32 sm:h-44 w-full overflow-hidden bg-gradient-to-r from-emerald-100 via-teal-50 to-emerald-50 relative">
+  <div class="h-36 sm:h-52 w-full overflow-hidden bg-gray-100 relative">
     <img 
-      src={SITE_CONFIG.coverImage} 
+      src={getRelativeUrl(SITE_CONFIG.coverImage)} 
       alt="Cover" 
-      class="w-full h-full object-cover opacity-85"
+      class="w-full h-full object-cover"
     />
   </div>
 
   <!-- プロフィール情報エリア -->
   <div class="max-w-4xl mx-auto px-4 sm:px-6 relative pb-6">
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between -mt-12 sm:-mt-16 mb-4 gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between -mt-14 sm:-mt-16 mb-4 gap-4">
       <!-- アバター & 名前 -->
       <div class="flex items-end gap-4">
-        <div class="relative">
+        <div class="relative shrink-0">
           <img 
-            src={SITE_CONFIG.avatar} 
+            src={getRelativeUrl(SITE_CONFIG.avatar)} 
             alt={SITE_CONFIG.author} 
             class="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-white shadow-md bg-white object-cover"
           />
         </div>
         <div class="mb-1">
-          <div class="flex items-center gap-2">
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-              {SITE_CONFIG.author}
-            </h1>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-[#2cb696] border border-emerald-200">
-              Creator
-            </span>
-          </div>
-          <p class="text-xs text-gray-500 mt-0.5">@shusaku_namiki</p>
+          <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+            {SITE_CONFIG.author}
+          </h1>
+          <p class="text-xs text-gray-500 mt-0.5">{SITE_CONFIG.handle}</p>
         </div>
       </div>
 
-      <!-- フォローボタン & SNSリンク -->
-      <div class="flex items-center gap-3">
-        <button 
-          id="follow-btn" 
-          class="px-5 py-2 rounded-full text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 bg-[#2cb696] text-white hover:bg-[#279d81] active:scale-95"
-          data-following="false"
+      <!-- SNS & GitHub リンク -->
+      <div class="flex items-center gap-2">
+        <a 
+          href={SITE_CONFIG.xUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 text-gray-700 rounded-full hover:bg-gray-50 transition-colors text-xs font-semibold"
+          title="X (Twitter)"
         >
-          <span class="follow-icon text-base leading-none">+</span>
-          <span class="follow-text">フォロー</span>
-        </button>
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+          <span>X</span>
+        </a>
 
         <a 
           href={SITE_CONFIG.githubUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="p-2 border border-gray-200 text-gray-600 rounded-full hover:bg-gray-50 hover:text-gray-900 transition-colors"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 text-gray-700 rounded-full hover:bg-gray-50 transition-colors text-xs font-semibold"
           title="GitHub"
         >
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
           </svg>
+          <span>GitHub</span>
         </a>
       </div>
     </div>
 
     <!-- 自己紹介文 -->
-    <p class="text-sm sm:text-base text-gray-700 leading-relaxed max-w-2xl">
+    <p class="text-sm text-gray-700 leading-relaxed max-w-2xl">
       {SITE_CONFIG.bio}
     </p>
 
-    <!-- メトリクス -->
-    <div class="flex items-center gap-6 mt-4 text-xs sm:text-sm text-gray-500 font-medium">
-      <div>
-        <span class="font-bold text-gray-900">{totalPosts}</span> 投稿
-      </div>
-      <div>
-        <span id="follower-count" class="font-bold text-gray-900">84</span> フォロワー
-      </div>
-      <div>
-        <span class="font-bold text-gray-900">128</span> スキ
-      </div>
+    <!-- 記事数 -->
+    <div class="flex items-center gap-4 mt-3 text-xs text-gray-500 font-medium">
+      <span>{totalPosts} 件の投稿</span>
     </div>
   </div>
 </div>
-
-<script>
-  // フォローボタンのトグルとLocalStorage保存
-  const followBtn = document.getElementById('follow-btn');
-  const followerCount = document.getElementById('follower-count');
-  const STORAGE_KEY = 'namiki_blog_followed';
-
-  function updateButtonState(isFollowed: boolean) {
-    if (!followBtn) return;
-    const textEl = followBtn.querySelector('.follow-text');
-    const iconEl = followBtn.querySelector('.follow-icon');
-    let count = 84;
-
-    if (isFollowed) {
-      followBtn.dataset.following = 'true';
-      followBtn.className = 'px-5 py-2 rounded-full text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-red-600 hover:border-red-300 active:scale-95 group';
-      if (textEl) textEl.textContent = 'フォロー中';
-      if (iconEl) iconEl.textContent = '✓';
-      if (followerCount) followerCount.textContent = `${count + 1}`;
-    } else {
-      followBtn.dataset.following = 'false';
-      followBtn.className = 'px-5 py-2 rounded-full text-sm font-semibold transition-all shadow-sm flex items-center gap-1.5 bg-[#2cb696] text-white hover:bg-[#279d81] active:scale-95';
-      if (textEl) textEl.textContent = 'フォロー';
-      if (iconEl) iconEl.textContent = '+';
-      if (followerCount) followerCount.textContent = `${count}`;
-    }
-  }
-
-  const initialFollowed = localStorage.getItem(STORAGE_KEY) === 'true';
-  updateButtonState(initialFollowed);
-
-  followBtn?.addEventListener('click', () => {
-    const isCurrentlyFollowing = followBtn.dataset.following === 'true';
-    const nextState = !isCurrentlyFollowing;
-    localStorage.setItem(STORAGE_KEY, String(nextState));
-    updateButtonState(nextState);
-  });
-</script>

@@ -1,12 +1,12 @@
 export const SITE_CONFIG = {
   title: '並木秀作のブログ',
-  description: '思考の断片、読書記録、日々の暮らしと道具についてのnote風ブログです。',
+  description: '並木秀作の個人ブログです。日々の思考や技術、好きなモノについて綴っています。',
   author: '並木 秀作',
-  bio: '日々の思考や感じたこと、好きな本や暮らしの道具について綴っています。静かで心地よい文章を目指しています。',
-  avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=namiki&backgroundColor=eaf7f4',
-  coverImage: 'https://images.unsplash.com/photo-1507842229451-7f01be7ff6ab?auto=format&fit=crop&w=1600&q=80',
+  handle: '@ShusakuNamiki',
+  bio: '日々の思考や技術、好きなモノについて綴る個人ブログです。',
+  avatar: '/images/avatar.jpg',
+  coverImage: '/images/cover.jpg',
   githubUrl: 'https://github.com/ShotaXiangtai/namiki-blog',
-  xUrl: 'https://x.com',
+  xUrl: 'https://x.com/ShusakuNamiki',
   license: 'CC BY 4.0 / MIT',
-  postsPerPage: 10,
 };

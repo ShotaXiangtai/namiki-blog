@@ -61,7 +61,7 @@ const readingTime = post.body ? estimateReadingTime(post.body) : 3;
         <div class="flex items-center gap-3">
           <a href={getRelativeUrl('/about')} class="shrink-0">
             <img 
-              src={SITE_CONFIG.avatar} 
+              src={getRelativeUrl(SITE_CONFIG.avatar)} 
               alt={SITE_CONFIG.author} 
               class="w-10 h-10 rounded-full border border-gray-200 object-cover"
             />
@@ -88,12 +88,6 @@ const readingTime = post.body ? estimateReadingTime(post.body) : 3;
           </div>
         </div>
 
-        <button 
-          id="article-header-follow"
-          class="px-4 py-1.5 rounded-full text-xs font-semibold border border-[#2cb696] text-[#2cb696] hover:bg-emerald-50 transition-colors hidden sm:block"
-        >
-          フォロー
-        </button>
       </div>
     </header>
 
@@ -171,28 +165,3 @@ const readingTime = post.body ? estimateReadingTime(post.body) : 3;
     <AuthorBioCard />
   </article>
 </BaseLayout>
-
-<script>
-  // ヘッダーのフォローボタン同期
-  const followBtn = document.getElementById('article-header-follow');
-  const STORAGE_KEY = 'namiki_blog_followed';
-
-  function syncState() {
-    if (!followBtn) return;
-    const isFollowed = localStorage.getItem(STORAGE_KEY) === 'true';
-    if (isFollowed) {
-      followBtn.textContent = 'フォロー中';
-      followBtn.className = 'px-4 py-1.5 rounded-full text-xs font-semibold border border-gray-300 text-gray-600 bg-white hover:bg-gray-50 transition-colors hidden sm:block';
-    } else {
-      followBtn.textContent = 'フォロー';
-      followBtn.className = 'px-4 py-1.5 rounded-full text-xs font-semibold border border-[#2cb696] text-[#2cb696] hover:bg-emerald-50 transition-colors hidden sm:block';
-    }
-  }
-
-  syncState();
-  followBtn?.addEventListener('click', () => {
-    const isCurrentlyFollowing = localStorage.getItem(STORAGE_KEY) === 'true';
-    localStorage.setItem(STORAGE_KEY, String(!isCurrentlyFollowing));
-    syncState();
-  });
-</script>

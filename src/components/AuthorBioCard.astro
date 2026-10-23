@@ -5,7 +5,7 @@ import { getRelativeUrl } from '../utils/url';
 
 <div class="my-12 p-6 sm:p-8 bg-gray-50/80 rounded-2xl border border-gray-200/80 flex flex-col sm:flex-row items-center sm:items-start gap-6">
   <img 
-    src={SITE_CONFIG.avatar} 
+    src={getRelativeUrl(SITE_CONFIG.avatar)} 
     alt={SITE_CONFIG.author} 
     class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-white shadow-sm object-cover bg-white shrink-0"
   />
@@ -16,14 +16,14 @@ import { getRelativeUrl } from '../utils/url';
         <h3 class="text-lg font-bold text-gray-900 tracking-tight">
           {SITE_CONFIG.author}
         </h3>
-        <p class="text-xs text-gray-500">並木秀作のブログ 執筆者</p>
+        <p class="text-xs text-gray-500">{SITE_CONFIG.handle}</p>
       </div>
 
       <a 
         href={getRelativeUrl('/about')} 
         class="inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs font-semibold border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-2xs mx-auto sm:mx-0"
       >
-        詳しいプロフィール
+        プロフィール
       </a>
     </div>
 
@@ -32,12 +32,16 @@ import { getRelativeUrl } from '../utils/url';
     </p>
 
     <div class="flex items-center justify-center sm:justify-start gap-4 text-xs font-medium text-gray-500">
-      <a href={SITE_CONFIG.githubUrl} target="_blank" rel="noopener noreferrer" class="hover:text-[#2cb696] flex items-center gap-1">
+      <a href={SITE_CONFIG.xUrl} target="_blank" rel="noopener noreferrer" class="hover:text-[#2cb696]">
+        X (Twitter)
+      </a>
+      <span>•</span>
+      <a href={SITE_CONFIG.githubUrl} target="_blank" rel="noopener noreferrer" class="hover:text-[#2cb696]">
         GitHub
       </a>
       <span>•</span>
       <a href={getRelativeUrl('/')} class="hover:text-[#2cb696]">
-        すべての記事を読む
+        記事一覧
       </a>
     </div>
   </div>
