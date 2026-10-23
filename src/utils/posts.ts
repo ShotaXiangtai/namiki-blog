@@ -20,3 +20,21 @@ export async function getPublishedPosts(): Promise<CollectionEntry<'blog'>[]> {
     })
     .sort((a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf());
 }
+
+/**
+ * 公開中の記事からユニークなタグ一覧を取得する
+ */
+export async function getAllTags(): Promise<{ name: string; count: number }[]> {
+  const posts = await getPublishedPosts();
+  const tagCounts = new Map<string, number>();
+
+  for (const post of posts) {
+    for (const tag of post.data.tags) {
+      tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+    }
+  }
+
+  return Array.from(tagCounts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+}

@@ -1,0 +1,41 @@
+# robots.txt for https://blog.vcmc.jp/
+# Allow standard search engines and AI generative engines / LLM crawlers
+
+User-agent: *
+Allow: /
+
+# OpenAI (ChatGPT / SearchGPT)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+# Anthropic (Claude)
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# Google Gemini / Extended
+User-agent: Google-Extended
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot-Extended
+Allow: /
+
+# Cohere
+User-agent: cohere-ai
+Allow: /
+
+# Sitemaps, Feeds, and LLM Context
+Sitemap: https://blog.vcmc.jp/sitemap.xml
+Sitemap: https://blog.vcmc.jp/rss.xml
+# LLM Context: https://blog.vcmc.jp/llms.txt
+# LLM Full Context: https://blog.vcmc.jp/llms-full.txt

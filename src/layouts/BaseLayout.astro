@@ -10,17 +10,106 @@ interface Props {
   description?: string;
   image?: string;
   article?: boolean;
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  tags?: string[];
 }
 
 const { 
   title = SITE_CONFIG.title, 
   description = SITE_CONFIG.description, 
   image = SITE_CONFIG.coverImage,
-  article = false 
+  article = false,
+  publishedTime,
+  modifiedTime,
+  tags = []
 } = Astro.props;
 
+const siteOrigin = (Astro.site ? Astro.site.origin : SITE_CONFIG.siteUrl).replace(/\/$/, '');
 const pageTitle = title === SITE_CONFIG.title ? title : `${title} | ${SITE_CONFIG.title}`;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://blog.vcmc.jp');
+const canonicalURL = new URL(Astro.url.pathname, siteOrigin);
+
+// OGP画像は完全修飾URL（絶対URL）に統一
+const absoluteImageUrl = image.startsWith('http://') || image.startsWith('https://')
+  ? image
+  : new URL(image, siteOrigin).href;
+
+// 構造化データ（JSON-LD）の作成
+const personSchema = {
+  '@type': 'Person',
+  '@id': `${siteOrigin}/#author`,
+  name: SITE_CONFIG.author,
+  url: `${siteOrigin}/about/`,
+  image: new URL(SITE_CONFIG.avatar.split('?')[0], siteOrigin).href,
+  description: SITE_CONFIG.bio,
+  sameAs: [
+    SITE_CONFIG.xUrl,
+    SITE_CONFIG.githubUrl,
+  ],
+};
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${siteOrigin}/#website`,
+  url: `${siteOrigin}/`,
+  name: SITE_CONFIG.title,
+  description: SITE_CONFIG.description,
+  inLanguage: 'ja-JP',
+  publisher: {
+    '@id': `${siteOrigin}/#author`,
+  },
+};
+
+const jsonLdList: any[] = [websiteSchema, personSchema];
+
+if (article) {
+  // 記事ページの BlogPosting スキーマ
+  const blogPostingSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${canonicalURL.href}#article`,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalURL.href,
+    },
+    headline: title,
+    description: description,
+    image: [absoluteImageUrl],
+    inLanguage: 'ja-JP',
+    author: {
+      '@id': `${siteOrigin}/#author`,
+    },
+    publisher: {
+      '@id': `${siteOrigin}/#author`,
+    },
+    datePublished: publishedTime ? publishedTime.toISOString() : undefined,
+    dateModified: (modifiedTime || publishedTime) ? (modifiedTime || publishedTime)?.toISOString() : undefined,
+    keywords: tags.length > 0 ? tags.join(', ') : undefined,
+  };
+
+  // パンくずリスト（BreadcrumbList）
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'ホーム',
+        item: `${siteOrigin}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: title,
+        item: canonicalURL.href,
+      },
+    ],
+  };
+
+  jsonLdList.push(blogPostingSchema, breadcrumbSchema);
+}
 ---
 
 <!doctype html>
@@ -38,20 +127,49 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://blog.vcm
     <meta name="author" content={SITE_CONFIG.author} />
     <link rel="canonical" href={canonicalURL} />
 
+    <!-- Robots: AI Overviews & Search Crawler Optimization -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content={article ? 'article' : 'website'} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={image} />
+    <meta property="og:image" content={absoluteImageUrl} />
     <meta property="og:site_name" content={SITE_CONFIG.title} />
+    <meta property="og:locale" content="ja_JP" />
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={canonicalURL} />
-    <meta property="twitter:title" content={pageTitle} />
-    <meta property="twitter:description" content={description} />
-    <meta property="twitter:image" content={image} />
+    {article && publishedTime && (
+      <meta property="article:published_time" content={publishedTime.toISOString()} />
+    )}
+    {article && (modifiedTime || publishedTime) && (
+      <meta property="article:modified_time" content={(modifiedTime || publishedTime)?.toISOString()} />
+    )}
+    {article && <meta property="article:author" content={SITE_CONFIG.author} />}
+    {article && tags.map((t) => <meta property="article:tag" content={t} />)}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={SITE_CONFIG.handle} />
+    <meta name="twitter:creator" content={SITE_CONFIG.handle} />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={absoluteImageUrl} />
+
+    <!-- RSS & Sitemap Discovery -->
+    <link rel="alternate" type="application/rss+xml" title={`${SITE_CONFIG.title} (RSS 2.0)`} href={new URL('/rss.xml', siteOrigin).href} />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href={new URL('/sitemap.xml', siteOrigin).href} />
+
+    <!-- AI / LLM Context Discovery (GEO) -->
+    <link rel="alternate" type="text/plain" title="LLM Context (llms.txt)" href={new URL('/llms.txt', siteOrigin).href} />
+
+    <!-- JSON-LD Structured Data (Schema.org) for SEO & AI / GEO -->
+    {jsonLdList.map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
 
     <!-- Google Fonts: Inter & Noto Sans JP -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

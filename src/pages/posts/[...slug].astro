@@ -33,8 +33,23 @@ const readingTime = post.body ? estimateReadingTime(post.body) : 3;
   description={post.data.description}
   image={post.data.heroImage}
   article={true}
+  publishedTime={post.data.pubDate}
+  tags={post.data.tags}
 >
-  <article class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <article class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12" itemscope itemtype="https://schema.org/BlogPosting">
+    <!-- パンくずリスト -->
+    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-6" aria-label="Breadcrumb">
+      <a href={getRelativeUrl('/')} class="hover:text-[#2cb696] transition-colors">ホーム</a>
+      <span>/</span>
+      {post.data.tags[0] && (
+        <>
+          <a href={getRelativeUrl(`/tags/${post.data.tags[0]}`)} class="hover:text-[#2cb696] transition-colors">#{post.data.tags[0]}</a>
+          <span>/</span>
+        </>
+      )}
+      <span class="text-gray-400 truncate max-w-[200px] sm:max-w-xs">{post.data.title}</span>
+    </nav>
+
     <!-- 記事ヘッダー -->
     <header class="mb-8">
       <!-- カテゴリ / タグ -->
@@ -50,19 +65,20 @@ const readingTime = post.body ? estimateReadingTime(post.body) : 3;
       </div>
 
       <!-- タイトル -->
-      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight tracking-tight mb-6">
+      <h1 itemprop="headline" class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight tracking-tight mb-6">
         {post.data.title}
       </h1>
 
       <!-- 著者 & メタ情報バー -->
       <div class="flex items-center justify-between pb-6 border-b border-gray-200">
         <div class="flex items-center gap-3">
-          <a href={getRelativeUrl('/about')} class="shrink-0">
+          <a href={getRelativeUrl('/about')} class="shrink-0" itemprop="author" itemscope itemtype="https://schema.org/Person">
             <img 
               src={getRelativeUrl(SITE_CONFIG.avatar)} 
               alt={SITE_CONFIG.author} 
               class="w-10 h-10 rounded-full border border-gray-200 object-cover"
             />
+            <meta itemprop="name" content={SITE_CONFIG.author} />
           </a>
           <div>
             <div class="flex items-center gap-2">
@@ -71,7 +87,7 @@ const readingTime = post.body ? estimateReadingTime(post.body) : 3;
               </a>
             </div>
             <div class="flex items-center gap-2 text-xs text-gray-500">
-              <time datetime={post.data.pubDate.toISOString()}>
+              <time datetime={post.data.pubDate.toISOString()} itemprop="datePublished">
                 {formatDate(post.data.pubDate)}
               </time>
               <span>•</span>
@@ -95,6 +111,7 @@ const readingTime = post.body ? estimateReadingTime(post.body) : 3;
         <img 
           src={post.data.heroImage} 
           alt={post.data.title} 
+          itemprop="image"
           class="w-full h-full object-cover"
         />
       </div>
@@ -122,7 +139,7 @@ const readingTime = post.body ? estimateReadingTime(post.body) : 3;
     )}
 
     <!-- 記事本文 -->
-    <div class="article-content">
+    <div class="article-content" itemprop="articleBody">
       <Content />
     </div>
 
