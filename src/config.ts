@@ -5,7 +5,7 @@ export const SITE_CONFIG = {
   bio: '日々の思考や感じたこと、好きな本や暮らしの道具について綴っています。静かで心地よい文章を目指しています。',
   avatar: 'https://api.dicebear.com/7.x/notionists/svg?seed=namiki&backgroundColor=eaf7f4',
   coverImage: 'https://images.unsplash.com/photo-1507842229451-7f01be7ff6ab?auto=format&fit=crop&w=1600&q=80',
-  githubUrl: 'https://github.com/shusaku-namiki/namiki-blog',
+  githubUrl: 'https://github.com/ShotaXiangtai/namiki-blog',
   xUrl: 'https://x.com',
   license: 'CC BY 4.0 / MIT',
   postsPerPage: 10,

@@ -8,7 +8,7 @@ const repoName = 'namiki-blog';
 const base = process.env.BASE_PATH || (process.env.NODE_ENV === 'production' ? `/${repoName}` : '/');
 
 export default defineConfig({
-  site: process.env.SITE_URL || 'https://shusaku-namiki.github.io',
+  site: process.env.SITE_URL || 'https://shotaxiangtai.github.io',
   base: base,
   trailingSlash: 'always',
   vite: {
