@@ -1,16 +1,14 @@
 ---
-import { getCollection } from 'astro:content';
+import { getPublishedPosts } from '../utils/posts';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProfileBanner from '../components/ProfileBanner.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import { SITE_CONFIG } from '../config';
 import { getRelativeUrl } from '../utils/url';
 
-// 記事を日付順（新しい順）でソート
-const posts = await getCollection('blog');
-const sortedPosts = posts.sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+// 公開日時の過ぎた記事のみを取得（時間指定投稿対応）
+const sortedPosts = await getPublishedPosts();
+const posts = sortedPosts;
 
 // タグ一覧と出現頻度を集計
 const allTags = [...new Set(posts.flatMap(p => p.data.tags))];
