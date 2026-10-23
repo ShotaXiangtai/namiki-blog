@@ -1,7 +1,7 @@
 ---
 title: "【次世代マルチスレッド】Foliaフォーク「CanvasMC」とは？特徴・Paperとの違い・導入メリットを徹底解説"
 description: "Minecraftサーバーのマルチスレッド化で注目されるFoliaのフォーク「Canvas（CanvasMC）」。その仕組みやPaper・本家Foliaとの違い、導入時の注意点について解説します。"
-pubDate: 2026-10-24T12:00:00+09:00
+pubDate: 2026-10-23T22:30:00+09:00
 heroImage: "/images/cover.jpg"
 tags: ["Minecraft", "CanvasMC", "Folia", "サーバー設定", "技術解説"]
 pinned: false
@@ -92,3 +92,4 @@ PaperやPurpurであれば、jarファイルを差し替えるだけで既存の
 Paperの限界を超えて大規模なMinecraftコミュニティを運営したい管理者にとって、CanvasMCは今最も注目すべき選択肢の一つと言えます。
 
 興味のある方は、ぜひテスト環境を構築してその圧倒的なスレッドスケーリングを体験してみてください！
+
