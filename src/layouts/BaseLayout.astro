@@ -20,7 +20,7 @@ const {
 } = Astro.props;
 
 const pageTitle = title === SITE_CONFIG.title ? title : `${title} | ${SITE_CONFIG.title}`;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://shotaxiangtai.github.io');
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://blog.vcmc.jp');
 ---
 
 <!doctype html>

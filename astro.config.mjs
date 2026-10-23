@@ -2,14 +2,11 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 
-// GitHub Pagesのリポジトリ名（例: /namiki-blog/）
-// ユーザー名.github.io の場合は base: '/' に設定します。
-const repoName = 'namiki-blog';
-const base = process.env.BASE_PATH || (process.env.NODE_ENV === 'production' ? `/${repoName}` : '/');
-
+// カスタムドメイン（blog.vcmc.jp）運用の設定
+// カスタムドメインの場合はルートパス '/' で配信されます
 export default defineConfig({
-  site: process.env.SITE_URL || 'https://shotaxiangtai.github.io',
-  base: base,
+  site: process.env.SITE_URL || 'https://blog.vcmc.jp',
+  base: process.env.BASE_PATH || '/',
   trailingSlash: 'always',
   vite: {
     plugins: [tailwindcss()],
