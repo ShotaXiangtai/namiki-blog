@@ -1,0 +1,100 @@
+---
+interface Props {
+  postId: string;
+  initialLikes?: number;
+}
+
+const { postId, initialLikes = 10 } = Astro.props;
+---
+
+<div class="my-10 flex flex-col items-center justify-center gap-3">
+  <button
+    id="article-like-btn"
+    data-post-id={postId}
+    data-initial-likes={initialLikes}
+    class="group relative flex items-center gap-3 px-6 py-3 rounded-full border-2 border-gray-200 bg-white hover:border-[#ea3943]/40 hover:bg-rose-50/40 text-gray-700 transition-all duration-200 active:scale-95 shadow-sm"
+    aria-label="記事にスキをつける"
+  >
+    <!-- ハートSVG -->
+    <svg 
+      id="like-heart-icon"
+      class="w-6 h-6 transition-transform duration-200 group-hover:scale-110 text-gray-400"
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      stroke-width="2" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+    >
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    </svg>
+
+    <div class="flex items-center gap-1.5 text-base font-bold">
+      <span id="like-text">スキ</span>
+      <span id="like-count" class="text-gray-500 group-hover:text-gray-900 transition-colors">{initialLikes}</span>
+    </div>
+  </button>
+
+  <p id="like-message" class="text-xs text-gray-400 font-medium transition-opacity duration-300">
+    クリエイターにスキを届ける
+  </p>
+</div>
+
+<script>
+  const likeBtn = document.getElementById('article-like-btn');
+  const heartIcon = document.getElementById('like-heart-icon');
+  const likeCount = document.getElementById('like-count');
+  const likeMessage = document.getElementById('like-message');
+
+  if (likeBtn && heartIcon && likeCount) {
+    const postId = likeBtn.dataset.postId || '';
+    const initialLikes = parseInt(likeBtn.dataset.initialLikes || '0', 10);
+    const storageKey = `namiki_blog_like_${postId}`;
+
+    let isLiked = localStorage.getItem(storageKey) === 'true';
+    let currentLikes = initialLikes + (isLiked ? 1 : 0);
+
+    function renderState() {
+      if (!likeBtn || !heartIcon || !likeCount) return;
+      likeCount.textContent = String(currentLikes);
+
+      if (isLiked) {
+        likeBtn.classList.remove('border-gray-200', 'bg-white', 'hover:border-[#ea3943]/40');
+        likeBtn.classList.add('border-[#ea3943]', 'bg-rose-50', 'text-[#ea3943]');
+        heartIcon.classList.remove('text-gray-400');
+        heartIcon.classList.add('text-[#ea3943]', 'fill-current');
+        if (likeMessage) {
+          likeMessage.textContent = 'スキを届けました！ありがとうございます ✨';
+          likeMessage.classList.add('text-[#ea3943]');
+          likeMessage.classList.remove('text-gray-400');
+        }
+      } else {
+        likeBtn.classList.add('border-gray-200', 'bg-white', 'hover:border-[#ea3943]/40');
+        likeBtn.classList.remove('border-[#ea3943]', 'bg-rose-50', 'text-[#ea3943]');
+        heartIcon.classList.add('text-gray-400');
+        heartIcon.classList.remove('text-[#ea3943]', 'fill-current');
+        if (likeMessage) {
+          likeMessage.textContent = 'クリエイターにスキを届ける';
+          likeMessage.classList.remove('text-[#ea3943]');
+          likeMessage.classList.add('text-gray-400');
+        }
+      }
+    }
+
+    renderState();
+
+    likeBtn.addEventListener('click', () => {
+      isLiked = !isLiked;
+      currentLikes += isLiked ? 1 : -1;
+      localStorage.setItem(storageKey, String(isLiked));
+
+      // ハートのポンッという弾けるアニメーション
+      heartIcon.classList.add('scale-125');
+      setTimeout(() => {
+        heartIcon.classList.remove('scale-125');
+      }, 200);
+
+      renderState();
+    });
+  }
+</script>

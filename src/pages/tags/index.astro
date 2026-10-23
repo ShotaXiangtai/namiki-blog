@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getRelativeUrl } from '../../utils/url';
+
+const posts = await getCollection('blog');
+const allTags = [...new Set(posts.flatMap((p) => p.data.tags))];
+
+const tagsWithCount = allTags.map((tag) => {
+  const count = posts.filter((p) => p.data.tags.includes(tag)).length;
+  return { tag, count };
+}).sort((a, b) => b.count - a.count);
+---
+
+<BaseLayout title="タグ一覧">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+    <div class="border-b border-gray-200 pb-4 mb-8">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
+        タグ一覧
+      </h1>
+      <p class="text-sm text-gray-500">
+        関心のあるキーワードから記事を探すことができます（全{allTags.length}件）
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      {tagsWithCount.map(({ tag, count }) => (
+        <a 
+          href={getRelativeUrl(`/tags/${tag}`)} 
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-gray-200 hover:border-[#2cb696] hover:bg-emerald-50/40 text-gray-700 hover:text-[#2cb696] transition-all shadow-2xs group"
+        >
+          <span class="font-bold text-sm">#{tag}</span>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 group-hover:bg-emerald-100 text-gray-500 group-hover:text-[#2cb696] font-mono transition-colors">
+            {count}
+          </span>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

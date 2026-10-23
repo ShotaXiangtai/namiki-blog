@@ -1,0 +1,62 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getRelativeUrl } from '../../utils/url';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  const allTags = [...new Set(posts.flatMap((p) => p.data.tags))];
+
+  return allTags.map((tag) => {
+    const filteredPosts = posts.filter((p) => p.data.tags.includes(tag))
+      .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+    return {
+      params: { tag },
+      props: { posts: filteredPosts },
+    };
+  });
+}
+
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+---
+
+<BaseLayout title={`#${tag} の記事一覧`}>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    <div class="mb-8 pb-4 border-b border-gray-200">
+      <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+        <a href={getRelativeUrl('/')} class="hover:text-[#2cb696]">ホーム</a>
+        <span>&rsaquo;</span>
+        <a href={getRelativeUrl('/tags')} class="hover:text-[#2cb696]">タグ</a>
+        <span>&rsaquo;</span>
+        <span class="text-gray-800">#{tag}</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="text-2xl sm:text-3xl font-extrabold text-[#2cb696]">#</span>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+          {tag}
+        </h1>
+        <span class="text-sm text-gray-400 font-medium ml-2">
+          ({posts.length}件の記事)
+        </span>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      {posts.map((post) => (
+        <ArticleCard post={post} />
+      ))}
+    </div>
+
+    <div class="mt-10 text-center">
+      <a 
+        href={getRelativeUrl('/tags')} 
+        class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full border border-gray-300 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+      >
+        &larr; すべてのタグを見る
+      </a>
+    </div>
+  </div>
+</BaseLayout>

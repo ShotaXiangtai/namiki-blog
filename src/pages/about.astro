@@ -1,0 +1,116 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_CONFIG } from '../config';
+import { getRelativeUrl } from '../utils/url';
+---
+
+<BaseLayout title={`プロフィール | ${SITE_CONFIG.author}`}>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+    <!-- プロフィールヘッダー -->
+    <div class="bg-white border border-[#e8e8e8] rounded-2xl p-6 sm:p-8 mb-10 shadow-2xs">
+      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
+        <img 
+          src={SITE_CONFIG.avatar} 
+          alt={SITE_CONFIG.author} 
+          class="w-24 h-24 rounded-full border-4 border-emerald-50 shadow-sm object-cover bg-white shrink-0"
+        />
+
+        <div class="flex-1 text-center sm:text-left">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+            <div>
+              <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">
+                {SITE_CONFIG.author}
+              </h1>
+              <p class="text-xs text-gray-500 mt-0.5">Shusaku Namiki</p>
+            </div>
+
+            <a 
+              href={SITE_CONFIG.githubUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-colors shadow-2xs mx-auto sm:mx-0"
+            >
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+              </svg>
+              GitHubを見る
+            </a>
+          </div>
+
+          <p class="text-sm text-gray-700 leading-relaxed">
+            {SITE_CONFIG.bio}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- コンテンツセクション -->
+    <div class="space-y-10">
+      <section class="bg-white border border-[#e8e8e8] rounded-2xl p-6 sm:p-8">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+          <span class="w-2 h-5 bg-[#2cb696] rounded-full"></span>
+          ブログについて
+        </h2>
+        <div class="text-sm text-gray-700 leading-relaxed space-y-3">
+          <p>
+            「並木秀作のブログ」は、noteのようなミニマルで落ち着いた読書体験を目指して設計された個人ブログです。
+          </p>
+          <p>
+            思考の断片、読書記録、ミニマリズムや道具選び、技術的な学びなどをじっくりと書き残しています。
+          </p>
+        </div>
+      </section>
+
+      <!-- ライセンス情報 -->
+      <section class="bg-white border border-[#e8e8e8] rounded-2xl p-6 sm:p-8">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+          <span class="w-2 h-5 bg-[#2cb696] rounded-full"></span>
+          ライセンスについて
+        </h2>
+        <div class="text-sm text-gray-700 leading-relaxed space-y-4">
+          <div class="p-4 bg-emerald-50/50 rounded-xl border border-emerald-100">
+            <h3 class="font-bold text-gray-900 mb-1">文章・記事コンテンツ</h3>
+            <p class="text-xs text-gray-600">
+              Creative Commons 表示 4.0 国際 (<a href="https://creativecommons.org/licenses/by/4.0/deed.ja" target="_blank" rel="noopener noreferrer" class="text-[#2cb696] underline font-medium">CC BY 4.0</a>)
+            </p>
+            <p class="text-xs text-gray-500 mt-2">
+              適切なクレジット（並木秀作、ブログURL）を表示していただければ、要約や引用、共有を歓迎します。
+            </p>
+          </div>
+
+          <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <h3 class="font-bold text-gray-900 mb-1">ソースコード・テーマ</h3>
+            <p class="text-xs text-gray-600">
+              <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer" class="text-[#2cb696] underline font-medium">MIT License</a>
+            </p>
+            <p class="text-xs text-gray-500 mt-2">
+              本ブログのプログラム（Astroテンプレート）はMITライセンスのオープンソースとして自由に利用・改変いただけます。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 記事の追加方法（自分用ガイド） -->
+      <section class="bg-white border border-[#e8e8e8] rounded-2xl p-6 sm:p-8">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
+          <span class="w-2 h-5 bg-[#2cb696] rounded-full"></span>
+          新しい記事を書く手順
+        </h2>
+        <ol class="list-decimal list-inside space-y-3 text-sm text-gray-700">
+          <li>
+            <code>src/content/blog/</code> フォルダに <code>記事スラッグ.md</code> を作成します。
+          </li>
+          <li>
+            記事の先頭にFrontmatter（タイトル、投稿日、タグ等）を記述します。
+          </li>
+          <li>
+            Markdown形式で自由に文章を書きます。
+          </li>
+          <li>
+            GitHubの <code>main</code> ブランチに push すると、GitHub Actions が自動でビルドし GitHub Pages にデプロイされます！
+          </li>
+        </ol>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
