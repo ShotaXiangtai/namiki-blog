@@ -1,101 +1,88 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
 import { SITE_CONFIG } from '../config';
 import { getRelativeUrl } from '../utils/url';
 ---
 
 <BaseLayout title={`プロフィール | ${SITE_CONFIG.author}`}>
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-    <!-- プロフィールヘッダー -->
-    <div class="bg-white border border-[#e8e8e8] rounded-2xl p-6 sm:p-8 mb-10 shadow-2xs">
-      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
-        <img 
-          src={getRelativeUrl(SITE_CONFIG.avatar)} 
-          alt={SITE_CONFIG.author} 
-          class="w-24 h-24 rounded-full border-4 border-emerald-50 shadow-sm object-cover bg-white shrink-0"
+  <div class="mx-auto max-w-3xl px-4 pb-20 pt-10 sm:px-6 sm:pt-14">
+    <!-- プロフィール -->
+    <section class="rounded-3xl border border-line bg-surface p-6 sm:p-8">
+      <div class="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:text-left">
+        <img
+          src={getRelativeUrl(SITE_CONFIG.avatar)}
+          alt={SITE_CONFIG.author}
+          width="96"
+          height="96"
+          class="size-24 shrink-0 rounded-full object-cover ring-4 ring-accent-soft"
         />
-
-        <div class="flex-1 text-center sm:text-left">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
-            <div>
-              <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">
-                {SITE_CONFIG.author}
-              </h1>
-              <p class="text-xs text-gray-500 mt-0.5">{SITE_CONFIG.handle}</p>
-            </div>
-
-            <div class="flex items-center gap-2 mx-auto sm:mx-0">
-              <a 
-                href={SITE_CONFIG.xUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-2xs"
-              >
-                X (Twitter)
-              </a>
-              <a 
-                href={SITE_CONFIG.githubUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-900 text-white hover:bg-gray-800 transition-colors shadow-2xs"
-              >
-                GitHub
-              </a>
-            </div>
+        <div class="min-w-0 flex-1">
+          <h1 class="headline text-2xl font-extrabold tracking-tight text-ink">{SITE_CONFIG.author}</h1>
+          <p class="text-sm text-ink-muted">{SITE_CONFIG.handle}</p>
+          <p class="mt-3 text-[0.9375rem] leading-relaxed text-ink-soft">{SITE_CONFIG.bio}</p>
+          <div class="mt-5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+            <a
+              href={SITE_CONFIG.xUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-xs font-bold text-canvas transition-opacity hover:opacity-85"
+            >
+              <Icon name="x" class="size-3.5" />
+              フォローする
+            </a>
+            <a
+              href={SITE_CONFIG.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-full border border-line-strong bg-surface px-4 py-2 text-xs font-bold text-ink-soft transition-colors hover:bg-subtle hover:text-ink"
+            >
+              <Icon name="github" class="size-4" />
+              GitHub
+            </a>
           </div>
+        </div>
+      </div>
+    </section>
 
-          <p class="text-sm text-gray-700 leading-relaxed">
-            {SITE_CONFIG.bio}
+    <!-- ブログについて -->
+    <section class="mt-6 rounded-3xl border border-line bg-surface p-6 sm:p-8">
+      <h2 class="flex items-center gap-2.5 text-lg font-bold text-ink">
+        <span class="h-5 w-1 rounded-full bg-accent" aria-hidden="true"></span>
+        ブログについて
+      </h2>
+      <div class="mt-4 space-y-3 text-[0.9375rem] leading-loose text-ink-soft">
+        <p>「並木秀作のブログ」は、シンプルで落ち着いた読書体験を目指して設計された個人ブログです。</p>
+        <p>思考の断片、読書記録、ミニマリズムや道具選び、技術的な学びなどをじっくりと書き残しています。</p>
+      </div>
+    </section>
+
+    <!-- ライセンス -->
+    <section class="mt-6 rounded-3xl border border-line bg-surface p-6 sm:p-8">
+      <h2 class="flex items-center gap-2.5 text-lg font-bold text-ink">
+        <span class="h-5 w-1 rounded-full bg-accent" aria-hidden="true"></span>
+        ライセンスについて
+      </h2>
+      <div class="mt-5 grid gap-3 sm:grid-cols-2">
+        <div class="rounded-2xl border border-line bg-accent-soft/60 p-5">
+          <h3 class="text-sm font-bold text-ink">文章・記事コンテンツ</h3>
+          <p class="mt-1 text-xs text-ink-soft">
+            Creative Commons 表示 4.0 国際（<a href="https://creativecommons.org/licenses/by/4.0/deed.ja" target="_blank" rel="noopener noreferrer" class="font-medium text-accent-ink underline underline-offset-2">CC BY 4.0</a>）
+          </p>
+          <p class="mt-3 text-xs leading-relaxed text-ink-muted">
+            適切なクレジット（並木秀作、ブログURL）を表示していただければ、要約や引用、共有を歓迎します。
+          </p>
+        </div>
+        <div class="rounded-2xl border border-line bg-subtle p-5">
+          <h3 class="text-sm font-bold text-ink">ソースコード・テーマ</h3>
+          <p class="mt-1 text-xs text-ink-soft">
+            <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer" class="font-medium text-accent-ink underline underline-offset-2">MIT License</a>
+          </p>
+          <p class="mt-3 text-xs leading-relaxed text-ink-muted">
+            本ブログのプログラム（Astroテンプレート）はMITライセンスのオープンソースとして自由に利用・改変いただけます。
           </p>
         </div>
       </div>
-    </div>
-
-    <!-- コンテンツセクション -->
-    <div class="space-y-10">
-      <section class="bg-white border border-[#e8e8e8] rounded-2xl p-6 sm:p-8">
-        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
-          <span class="w-2 h-5 bg-[#2cb696] rounded-full"></span>
-          ブログについて
-        </h2>
-        <div class="text-sm text-gray-700 leading-relaxed space-y-3">
-          <p>
-            「並木秀作のブログ」は、シンプルで落ち着いた読書体験を目指して設計された個人ブログです。
-          </p>
-          <p>
-            思考の断片、読書記録、ミニマリズムや道具選び、技術的な学びなどをじっくりと書き残しています。
-          </p>
-        </div>
-      </section>
-
-      <!-- ライセンス情報 -->
-      <section class="bg-white border border-[#e8e8e8] rounded-2xl p-6 sm:p-8">
-        <h2 class="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
-          <span class="w-2 h-5 bg-[#2cb696] rounded-full"></span>
-          ライセンスについて
-        </h2>
-        <div class="text-sm text-gray-700 leading-relaxed space-y-4">
-          <div class="p-4 bg-emerald-50/50 rounded-xl border border-emerald-100">
-            <h3 class="font-bold text-gray-900 mb-1">文章・記事コンテンツ</h3>
-            <p class="text-xs text-gray-600">
-              Creative Commons 表示 4.0 国際 (<a href="https://creativecommons.org/licenses/by/4.0/deed.ja" target="_blank" rel="noopener noreferrer" class="text-[#2cb696] underline font-medium">CC BY 4.0</a>)
-            </p>
-            <p class="text-xs text-gray-500 mt-2">
-              適切なクレジット（並木秀作、ブログURL）を表示していただければ、要約や引用、共有を歓迎します。
-            </p>
-          </div>
-
-          <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
-            <h3 class="font-bold text-gray-900 mb-1">ソースコード・テーマ</h3>
-            <p class="text-xs text-gray-600">
-              <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer" class="text-[#2cb696] underline font-medium">MIT License</a>
-            </p>
-            <p class="text-xs text-gray-500 mt-2">
-              本ブログのプログラム（Astroテンプレート）はMITライセンスのオープンソースとして自由に利用・改変いただけます。
-            </p>
-          </div>
-        </div>
-      </section>
-    </div>
+    </section>
   </div>
 </BaseLayout>

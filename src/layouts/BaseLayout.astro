@@ -171,15 +171,27 @@ if (article) {
       <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     ))}
 
-    <!-- Google Fonts: Inter & Noto Sans JP -->
+    <!-- Theme -->
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f7f8f7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1211" media="(prefers-color-scheme: dark)" />
+
+    <!-- Google Fonts: Noto Sans JP -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#fafafa] text-[#222222] min-h-screen flex flex-col font-sans selection:bg-[#2cb696]/20 selection:text-[#20876f]">
+  <body class="bg-canvas text-ink font-sans">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[70] focus:rounded-full focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:shadow-lg"
+    >
+      本文へスキップ
+    </a>
+
     <Header currentPath={Astro.url.pathname} />
 
-    <main class="flex-1">
+    <main id="main" class="flex-1">
       <slot />
     </main>
 

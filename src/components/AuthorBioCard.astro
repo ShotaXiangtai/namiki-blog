@@ -1,48 +1,40 @@
 ---
 import { SITE_CONFIG } from '../config';
 import { getRelativeUrl } from '../utils/url';
+import Icon from './Icon.astro';
 ---
 
-<div class="my-12 p-6 sm:p-8 bg-gray-50/80 rounded-2xl border border-gray-200/80 flex flex-col sm:flex-row items-center sm:items-start gap-6">
-  <img 
-    src={getRelativeUrl(SITE_CONFIG.avatar)} 
-    alt={SITE_CONFIG.author} 
-    class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-white shadow-sm object-cover bg-white shrink-0"
-  />
+<section aria-labelledby="author-heading" class="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+  <p id="author-heading" class="text-xs font-bold text-ink-muted">この記事を書いた人</p>
 
-  <div class="flex-1 text-center sm:text-left">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
-      <div>
-        <h3 class="text-lg font-bold text-gray-900 tracking-tight">
-          {SITE_CONFIG.author}
-        </h3>
-        <p class="text-xs text-gray-500">{SITE_CONFIG.handle}</p>
+  <div class="mt-4 flex items-start gap-4">
+    <a href={getRelativeUrl('/about/')} class="shrink-0">
+      <img
+        src={getRelativeUrl(SITE_CONFIG.avatar)}
+        alt={SITE_CONFIG.author}
+        width="64"
+        height="64"
+        loading="lazy"
+        class="size-14 rounded-full object-cover ring-1 ring-line sm:size-16"
+      />
+    </a>
+
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div>
+          <a href={getRelativeUrl('/about/')} class="font-bold text-ink hover:text-accent-ink">{SITE_CONFIG.author}</a>
+          <p class="text-xs text-ink-muted">{SITE_CONFIG.handle}</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href={SITE_CONFIG.xUrl} target="_blank" rel="noopener noreferrer" class="icon-btn size-9" aria-label="X (Twitter)">
+            <Icon name="x" class="size-3.5" />
+          </a>
+          <a href={SITE_CONFIG.githubUrl} target="_blank" rel="noopener noreferrer" class="icon-btn size-9" aria-label="GitHub">
+            <Icon name="github" class="size-4" />
+          </a>
+        </div>
       </div>
-
-      <a 
-        href={getRelativeUrl('/about')} 
-        class="inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs font-semibold border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-2xs mx-auto sm:mx-0"
-      >
-        プロフィール
-      </a>
-    </div>
-
-    <p class="text-sm text-gray-600 leading-relaxed mb-4">
-      {SITE_CONFIG.bio}
-    </p>
-
-    <div class="flex items-center justify-center sm:justify-start gap-4 text-xs font-medium text-gray-500">
-      <a href={SITE_CONFIG.xUrl} target="_blank" rel="noopener noreferrer" class="hover:text-[#2cb696]">
-        X (Twitter)
-      </a>
-      <span>•</span>
-      <a href={SITE_CONFIG.githubUrl} target="_blank" rel="noopener noreferrer" class="hover:text-[#2cb696]">
-        GitHub
-      </a>
-      <span>•</span>
-      <a href={getRelativeUrl('/')} class="hover:text-[#2cb696]">
-        記事一覧
-      </a>
+      <p class="mt-3 text-sm leading-relaxed text-ink-soft">{SITE_CONFIG.bio}</p>
     </div>
   </div>
-</div>
+</section>

@@ -2,6 +2,7 @@
 import { getPublishedPosts } from '../../utils/posts';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
+import Icon from '../../components/Icon.astro';
 import { getRelativeUrl } from '../../utils/url';
 
 export async function getStaticPaths() {
@@ -22,40 +23,36 @@ const { tag } = Astro.params;
 const { posts } = Astro.props;
 ---
 
-<BaseLayout title={`#${tag} の記事一覧`}>
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-    <div class="mb-8 pb-4 border-b border-gray-200">
-      <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
-        <a href={getRelativeUrl('/')} class="hover:text-[#2cb696]">ホーム</a>
-        <span>&rsaquo;</span>
-        <a href={getRelativeUrl('/tags')} class="hover:text-[#2cb696]">タグ</a>
-        <span>&rsaquo;</span>
-        <span class="text-gray-800">#{tag}</span>
-      </div>
+<BaseLayout title={`#${tag} の記事一覧`} description={`「${tag}」タグが付いた記事の一覧です（${posts.length}件）。`}>
+  <div class="mx-auto max-w-3xl px-4 pb-20 pt-6 sm:px-6 sm:pt-10">
+    <nav aria-label="パンくずリスト" class="mb-6 text-xs text-ink-muted">
+      <ol class="flex items-center gap-1.5">
+        <li><a href={getRelativeUrl('/')} class="hover:text-accent-ink">ホーム</a></li>
+        <li aria-hidden="true">/</li>
+        <li><a href={getRelativeUrl('/tags/')} class="hover:text-accent-ink">タグ</a></li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page" class="text-ink-soft">#{tag}</li>
+      </ol>
+    </nav>
 
-      <div class="flex items-center gap-3">
-        <span class="text-2xl sm:text-3xl font-extrabold text-[#2cb696]">#</span>
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-          {tag}
-        </h1>
-        <span class="text-sm text-gray-400 font-medium ml-2">
-          ({posts.length}件の記事)
-        </span>
-      </div>
+    <header class="mb-8">
+      <h1 class="headline flex items-baseline gap-1 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+        <span class="text-accent">#</span>{tag}
+      </h1>
+      <p class="mt-2 text-sm text-ink-muted">{posts.length}件の記事</p>
+    </header>
+
+    <div class="flex flex-col gap-3">
+      {posts.map((post) => <ArticleCard post={post} headingLevel={2} />)}
     </div>
 
-    <div class="space-y-4">
-      {posts.map((post) => (
-        <ArticleCard post={post} />
-      ))}
-    </div>
-
-    <div class="mt-10 text-center">
-      <a 
-        href={getRelativeUrl('/tags')} 
-        class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full border border-gray-300 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+    <div class="mt-12 text-center">
+      <a
+        href={getRelativeUrl('/tags/')}
+        class="inline-flex items-center gap-1.5 rounded-full border border-line-strong bg-surface px-5 py-2.5 text-sm font-bold text-ink-soft transition-colors hover:bg-subtle hover:text-ink"
       >
-        &larr; すべてのタグを見る
+        <Icon name="arrow-left" class="size-4" />
+        すべてのタグを見る
       </a>
     </div>
   </div>

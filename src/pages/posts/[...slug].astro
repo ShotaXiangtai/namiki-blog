@@ -1,12 +1,16 @@
 ---
 import { render } from 'astro:content';
-import { getPublishedPosts } from '../../utils/posts';
+import { getPublishedPosts, getRelatedPosts } from '../../utils/posts';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import LikeButton from '../../components/LikeButton.astro';
 import ShareButtons from '../../components/ShareButtons.astro';
 import AuthorBioCard from '../../components/AuthorBioCard.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+import PostThumb from '../../components/PostThumb.astro';
+import Icon from '../../components/Icon.astro';
 import { SITE_CONFIG } from '../../config';
 import { getRelativeUrl, formatDate, estimateReadingTime } from '../../utils/url';
+import { hasCustomHeroImage } from '../../utils/design';
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -19,164 +23,291 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
 
-// 公開済み記事の中から前後の記事を取得
+// 公開済み記事の中から前後の記事・関連記事を取得
 const sortedPosts = await getPublishedPosts();
 const currentIndex = sortedPosts.findIndex((p) => p.id === post.id);
 const prevPost = currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null;
 const nextPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
+const relatedPosts = getRelatedPosts(post, sortedPosts);
 
 const readingTime = post.body ? estimateReadingTime(post.body) : 3;
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const showToc = tocHeadings.length > 1;
+const showHero = hasCustomHeroImage(post.data.heroImage);
+const pageUrl = new URL(Astro.url.pathname, Astro.site ?? SITE_CONFIG.siteUrl).href;
+const updated =
+  post.data.updatedDate && post.data.updatedDate.valueOf() > post.data.pubDate.valueOf()
+    ? post.data.updatedDate
+    : undefined;
 ---
 
-<BaseLayout 
+<BaseLayout
   title={post.data.title}
   description={post.data.description}
   image={post.data.heroImage}
   article={true}
   publishedTime={post.data.pubDate}
+  modifiedTime={post.data.updatedDate}
   tags={post.data.tags}
 >
-  <article class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="reading-progress" aria-hidden="true"></div>
+
+  <div class="mx-auto max-w-5xl px-4 pb-20 pt-6 sm:px-6 sm:pt-10">
     <!-- パンくずリスト -->
-    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-6" aria-label="Breadcrumb">
-      <a href={getRelativeUrl('/')} class="hover:text-[#2cb696] transition-colors">ホーム</a>
-      <span>/</span>
-      {post.data.tags[0] && (
-        <>
-          <a href={getRelativeUrl(`/tags/${post.data.tags[0]}`)} class="hover:text-[#2cb696] transition-colors">#{post.data.tags[0]}</a>
-          <span>/</span>
-        </>
-      )}
-      <span class="text-gray-400 truncate max-w-[200px] sm:max-w-xs">{post.data.title}</span>
+    <nav aria-label="パンくずリスト" class="mb-6 text-xs text-ink-muted">
+      <ol class="flex min-w-0 items-center gap-1.5">
+        <li class="shrink-0"><a href={getRelativeUrl('/')} class="hover:text-accent-ink">ホーム</a></li>
+        {post.data.tags[0] && (
+          <>
+            <li aria-hidden="true">/</li>
+            <li class="shrink-0">
+              <a href={getRelativeUrl(`/tags/${post.data.tags[0]}/`)} class="hover:text-accent-ink">#{post.data.tags[0]}</a>
+            </li>
+          </>
+        )}
+        <li aria-hidden="true">/</li>
+        <li class="min-w-0 truncate" aria-current="page">{post.data.title}</li>
+      </ol>
     </nav>
 
-    <!-- 記事ヘッダー -->
-    <header class="mb-8">
-      <!-- カテゴリ / タグ -->
-      <div class="flex flex-wrap gap-2 mb-4">
-        {post.data.tags.map((tag) => (
-          <a 
-            href={getRelativeUrl(`/tags/${tag}`)} 
-            class="text-xs font-semibold text-[#2cb696] bg-[#eaf7f4] hover:bg-[#d6f0ea] px-2.5 py-1 rounded-full transition-colors"
-          >
-            #{tag}
-          </a>
-        ))}
-      </div>
+    <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:gap-12">
+      <article class="min-w-0 max-w-[44rem]" itemscope itemtype="https://schema.org/BlogPosting">
+        <!-- 記事ヘッダー -->
+        <header class="border-b border-line pb-7">
+          <ul class="mb-4 flex flex-wrap gap-1.5">
+            {post.data.tags.map((tag) => (
+              <li>
+                <a href={getRelativeUrl(`/tags/${tag}/`)} class="chip px-2.5 py-0.5 text-xs">#{tag}</a>
+              </li>
+            ))}
+          </ul>
 
-      <!-- タイトル -->
-      <h1 itemprop="headline" class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight tracking-tight mb-6">
-        {post.data.title}
-      </h1>
+          <h1 itemprop="headline" class="headline text-[1.625rem] font-extrabold leading-[1.4] tracking-tight text-ink sm:text-[2.125rem]">
+            {post.data.title}
+          </h1>
 
-      <!-- 著者 & メタ情報バー -->
-      <div class="flex items-center justify-between pb-6 border-b border-gray-200">
-        <div class="flex items-center gap-3">
-          <a href={getRelativeUrl('/about')} class="shrink-0" itemprop="author" itemscope itemtype="https://schema.org/Person">
-            <img 
-              src={getRelativeUrl(SITE_CONFIG.avatar)} 
-              alt={SITE_CONFIG.author} 
-              class="w-10 h-10 rounded-full border border-gray-200 object-cover"
-            />
-            <meta itemprop="name" content={SITE_CONFIG.author} />
-          </a>
-          <div>
-            <div class="flex items-center gap-2">
-              <a href={getRelativeUrl('/about')} class="text-sm font-bold text-gray-900 hover:text-[#2cb696] transition-colors">
-                {SITE_CONFIG.author}
-              </a>
-            </div>
-            <div class="flex items-center gap-2 text-xs text-gray-500">
-              <time datetime={post.data.pubDate.toISOString()} itemprop="datePublished">
-                {formatDate(post.data.pubDate)}
-              </time>
-              <span>•</span>
-              <span class="inline-flex items-center gap-1">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/>
-                </svg>
-                約{readingTime}分で読めます
-              </span>
+          <div class="mt-6 flex items-center gap-3">
+            <a href={getRelativeUrl('/about/')} class="shrink-0" itemprop="author" itemscope itemtype="https://schema.org/Person">
+              <img
+                src={getRelativeUrl(SITE_CONFIG.avatar)}
+                alt={SITE_CONFIG.author}
+                width="40"
+                height="40"
+                class="size-10 rounded-full object-cover ring-1 ring-line"
+              />
+              <meta itemprop="name" content={SITE_CONFIG.author} />
+            </a>
+            <div class="min-w-0">
+              <a href={getRelativeUrl('/about/')} class="text-sm font-bold text-ink hover:text-accent-ink">{SITE_CONFIG.author}</a>
+              <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-muted">
+                <time datetime={post.data.pubDate.toISOString()} itemprop="datePublished">{formatDate(post.data.pubDate)}</time>
+                {updated && (
+                  <span class="inline-flex items-center gap-1">
+                    <Icon name="refresh" class="size-3" />
+                    <time datetime={updated.toISOString()} itemprop="dateModified">{formatDate(updated)} 更新</time>
+                  </span>
+                )}
+                <span aria-hidden="true">·</span>
+                <span class="inline-flex items-center gap-1">
+                  <Icon name="clock" class="size-3.5" />
+                  約{readingTime}分で読めます
+                </span>
+              </div>
             </div>
           </div>
+        </header>
+
+        <!-- アイキャッチ画像（記事固有の画像がある場合のみ） -->
+        {showHero && (
+          <figure class="mt-8 overflow-hidden rounded-2xl border border-line bg-subtle">
+            <img src={post.data.heroImage} alt="" itemprop="image" class="aspect-[16/9] w-full object-cover" />
+          </figure>
+        )}
+
+        <!-- 目次（モバイル / タブレット） -->
+        {showToc && (
+          <details class="group mt-8 rounded-2xl border border-line bg-surface lg:hidden">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-sm font-bold text-ink [&::-webkit-details-marker]:hidden">
+              <span class="inline-flex items-center gap-2">
+                <Icon name="list" class="size-4 text-accent" />
+                目次
+                <span class="text-xs font-medium text-ink-muted">{tocHeadings.length}項目</span>
+              </span>
+              <Icon name="chevron-down" class="size-4 text-ink-muted transition-transform group-open:rotate-180" />
+            </summary>
+            <div class="px-5 pb-5">
+              <TableOfContents headings={headings} />
+            </div>
+          </details>
+        )}
+
+        <!-- 記事本文 -->
+        <div class="article-content mt-10" itemprop="articleBody">
+          <Content />
         </div>
 
-      </div>
-    </header>
+        <!-- 記事フッター -->
+        <footer class="mt-16 flex flex-col gap-6">
+          <div class="flex flex-col items-center justify-between gap-6 rounded-2xl border border-line bg-surface p-6 sm:flex-row">
+            <LikeButton postId={post.id} initialLikes={post.data.likes} />
+            <ShareButtons title={post.data.title} url={pageUrl} />
+          </div>
 
-    <!-- アイキャッチ画像 -->
-    {post.data.heroImage && (
-      <div class="mb-10 rounded-xl overflow-hidden shadow-xs bg-gray-100 aspect-16/9">
-        <img 
-          src={post.data.heroImage} 
-          alt={post.data.title} 
-          itemprop="image"
-          class="w-full h-full object-cover"
-        />
-      </div>
-    )}
+          <AuthorBioCard />
 
-    <!-- 目次（見出しが2つ以上ある場合に表示） -->
-    {headings.length > 1 && (
-      <nav class="my-8 p-5 bg-gray-50/90 rounded-xl border border-gray-200/80">
-        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 flex items-center gap-2">
-          <svg class="w-4 h-4 text-[#2cb696]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-          </svg>
-          目次
-        </h2>
-        <ul class="space-y-2 text-sm">
-          {headings.filter(h => h.depth <= 3).map((h) => (
-            <li class={`${h.depth === 3 ? 'ml-4 text-xs text-gray-600' : 'text-gray-700 font-medium'}`}>
-              <a href={`#${h.slug}`} class="hover:text-[#2cb696] hover:underline transition-colors block py-0.5">
-                {h.text}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    )}
+          {(prevPost || nextPost) && (
+            <nav aria-label="前後の記事" class="grid gap-3 sm:grid-cols-2">
+              {prevPost ? (
+                <a
+                  href={getRelativeUrl(`/posts/${prevPost.id}/`)}
+                  class="group flex flex-col gap-1.5 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-line-strong"
+                >
+                  <span class="inline-flex items-center gap-1 text-xs text-ink-muted">
+                    <Icon name="arrow-left" class="size-3.5" />
+                    前の記事
+                  </span>
+                  <span class="headline line-clamp-2 text-sm font-bold leading-snug text-ink group-hover:text-accent-ink">{prevPost.data.title}</span>
+                </a>
+              ) : (
+                <div class="hidden sm:block" />
+              )}
+              {nextPost && (
+                <a
+                  href={getRelativeUrl(`/posts/${nextPost.id}/`)}
+                  class="group flex flex-col items-end gap-1.5 rounded-2xl border border-line bg-surface p-4 text-right transition-colors hover:border-line-strong"
+                >
+                  <span class="inline-flex items-center gap-1 text-xs text-ink-muted">
+                    次の記事
+                    <Icon name="arrow-right" class="size-3.5" />
+                  </span>
+                  <span class="headline line-clamp-2 text-sm font-bold leading-snug text-ink group-hover:text-accent-ink">{nextPost.data.title}</span>
+                </a>
+              )}
+            </nav>
+          )}
+        </footer>
 
-    <!-- 記事本文 -->
-    <div class="article-content" itemprop="articleBody">
-      <Content />
+        <!-- 関連記事 -->
+        {relatedPosts.length > 0 && (
+          <section aria-labelledby="related-heading" class="mt-14">
+            <h2 id="related-heading" class="mb-4 text-lg font-bold text-ink">あわせて読みたい</h2>
+            <ul class="grid gap-3 sm:grid-cols-3">
+              {relatedPosts.map((related) => (
+                <li class="group relative flex gap-3 rounded-2xl border border-line bg-surface p-3 transition-colors hover:border-line-strong sm:flex-col">
+                  <PostThumb
+                    heroImage={related.data.heroImage}
+                    tag={related.data.tags[0]}
+                    class="aspect-[4/3] w-24 shrink-0 rounded-xl sm:aspect-[16/10] sm:w-full"
+                  />
+                  <div class="min-w-0 sm:px-1 sm:pb-1">
+                    <a
+                      href={getRelativeUrl(`/posts/${related.id}/`)}
+                      class="headline line-clamp-3 text-sm font-bold leading-snug text-ink after:absolute after:inset-0 after:rounded-2xl group-hover:text-accent-ink"
+                    >
+                      {related.data.title}
+                    </a>
+                    <time datetime={related.data.pubDate.toISOString()} class="mt-1.5 block text-xs text-ink-muted">
+                      {formatDate(related.data.pubDate)}
+                    </time>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </article>
+
+      <!-- 目次（デスクトップ：追従表示） -->
+      {showToc && (
+        <aside class="hidden lg:block" aria-label="目次">
+          <div class="sticky top-24 max-h-[calc(100dvh-8rem)] overflow-y-auto pb-6">
+            <p class="mb-3 flex items-center gap-2 text-xs font-bold text-ink-muted">
+              <Icon name="list" class="size-4 text-accent" />
+              目次
+            </p>
+            <TableOfContents headings={headings} tracking />
+          </div>
+        </aside>
+      )}
     </div>
-
-    <!-- note風 スキボタン -->
-    <LikeButton postId={post.id} initialLikes={post.data.likes} />
-
-    <!-- SNSシェアボタン -->
-    <ShareButtons title={post.data.title} />
-
-    <!-- 前後の記事へのナビゲーション -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-10 pt-6 border-t border-gray-200">
-      {prevPost ? (
-        <a 
-          href={getRelativeUrl(`/posts/${prevPost.id}`)} 
-          class="p-4 rounded-xl border border-gray-200 hover:border-[#2cb696] hover:bg-emerald-50/30 transition-all flex flex-col justify-between group"
-        >
-          <span class="text-xs text-gray-400 font-medium mb-1">&larr; 前の記事</span>
-          <span class="text-sm font-bold text-gray-800 group-hover:text-[#2cb696] line-clamp-2 transition-colors">
-            {prevPost.data.title}
-          </span>
-        </a>
-      ) : <div />}
-
-      {nextPost ? (
-        <a 
-          href={getRelativeUrl(`/posts/${nextPost.id}`)} 
-          class="p-4 rounded-xl border border-gray-200 hover:border-[#2cb696] hover:bg-emerald-50/30 transition-all flex flex-col justify-between text-right group"
-        >
-          <span class="text-xs text-gray-400 font-medium mb-1">次の記事 &rarr;</span>
-          <span class="text-sm font-bold text-gray-800 group-hover:text-[#2cb696] line-clamp-2 transition-colors">
-            {nextPost.data.title}
-          </span>
-        </a>
-      ) : <div />}
-    </div>
-
-    <!-- 記事末尾の著者プロフィールカード -->
-    <AuthorBioCard />
-  </article>
+  </div>
 </BaseLayout>
+
+<script>
+  // ---- 目次：現在読んでいる見出しをハイライト ----
+  const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc] a')];
+  if (tocLinks.length) {
+    const entries = tocLinks
+      .map((link) => {
+        const id = decodeURIComponent((link.getAttribute('href') ?? '').slice(1));
+        const heading = document.getElementById(id);
+        return heading ? { link, heading } : null;
+      })
+      .filter((e): e is { link: HTMLAnchorElement; heading: HTMLElement } => e !== null);
+
+    let current: HTMLAnchorElement | null = null;
+    let ticking = false;
+
+    const update = () => {
+      ticking = false;
+      const offset = 120;
+      let active = entries[0]?.link ?? null;
+      for (const { link, heading } of entries) {
+        if (heading.getBoundingClientRect().top - offset <= 0) active = link;
+        else break;
+      }
+      if (active === current) return;
+      current?.removeAttribute('aria-current');
+      active?.setAttribute('aria-current', 'true');
+      current = active;
+      // 長い目次では現在位置が見えるよう、目次の枠内だけをスクロール
+      const box = active?.closest<HTMLElement>('.overflow-y-auto');
+      if (active && box) {
+        const top = active.offsetTop - box.offsetTop;
+        if (top < box.scrollTop || top + active.offsetHeight > box.scrollTop + box.clientHeight) {
+          box.scrollTop = top - box.clientHeight / 3;
+        }
+      }
+    };
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    update();
+  }
+
+  // ---- コードブロックにコピーボタンを付与 ----
+  document.querySelectorAll<HTMLPreElement>('.article-content pre').forEach((pre) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block';
+    pre.replaceWith(wrapper);
+    wrapper.append(pre);
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'code-copy';
+    button.textContent = 'コピー';
+    button.setAttribute('aria-label', 'コードをコピー');
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.querySelector('code')?.innerText ?? pre.innerText);
+        button.textContent = 'コピーしました';
+        button.setAttribute('data-copied', '');
+        setTimeout(() => {
+          button.textContent = 'コピー';
+          button.removeAttribute('data-copied');
+        }, 2000);
+      } catch (e) {
+        console.error('Failed to copy', e);
+      }
+    });
+    wrapper.append(button);
+  });
+</script>

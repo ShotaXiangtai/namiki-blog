@@ -22,6 +22,27 @@ export async function getPublishedPosts(): Promise<CollectionEntry<'blog'>[]> {
 }
 
 /**
+ * タグの重なりが多い順に関連記事を返す（同点なら新しい順）
+ */
+export function getRelatedPosts(
+  current: CollectionEntry<'blog'>,
+  posts: CollectionEntry<'blog'>[],
+  limit = 3,
+): CollectionEntry<'blog'>[] {
+  const currentTags = new Set(current.data.tags);
+  return posts
+    .filter((p) => p.id !== current.id)
+    .map((post) => ({
+      post,
+      score: post.data.tags.filter((t) => currentTags.has(t)).length,
+    }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score || b.post.data.pubDate.valueOf() - a.post.data.pubDate.valueOf())
+    .slice(0, limit)
+    .map(({ post }) => post);
+}
+
+/**
  * 公開中の記事からユニークなタグ一覧を取得する
  */
 export async function getAllTags(): Promise<{ name: string; count: number }[]> {

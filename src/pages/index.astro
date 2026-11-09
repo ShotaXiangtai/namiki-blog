@@ -1,119 +1,84 @@
 ---
-import { getPublishedPosts } from '../utils/posts';
+import { getPublishedPosts, getAllTags } from '../utils/posts';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProfileBanner from '../components/ProfileBanner.astro';
 import ArticleCard from '../components/ArticleCard.astro';
-import { SITE_CONFIG } from '../config';
+import Icon from '../components/Icon.astro';
 import { getRelativeUrl } from '../utils/url';
 
 // 公開日時の過ぎた記事のみを取得（時間指定投稿対応）
-const sortedPosts = await getPublishedPosts();
-const posts = sortedPosts;
-
-// タグ一覧と出現頻度を集計
-const allTags = [...new Set(posts.flatMap(p => p.data.tags))];
-const tagCounts = allTags.map(tag => ({
-  name: tag,
-  count: posts.filter(p => p.data.tags.includes(tag)).length
-})).sort((a, b) => b.count - a.count);
+const posts = await getPublishedPosts();
+const tags = await getAllTags();
+const SIDEBAR_TAG_LIMIT = 16;
 ---
 
 <BaseLayout>
-  <!-- 著者プロフィールバナー -->
-  <ProfileBanner totalPosts={posts.length} />
+  <!-- 著者プロフィール -->
+  <ProfileBanner totalPosts={posts.length} totalTags={tags.length} />
 
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      
-      <!-- メインコンテンツ（記事一覧） -->
-      <section class="lg:col-span-8">
-        <!-- ナビゲーションタブ（note風） -->
-        <div class="flex items-center justify-between border-b border-gray-200 pb-3 mb-6">
-          <div class="flex items-center gap-6 text-sm font-bold">
-            <span class="text-gray-900 border-b-2 border-[#2cb696] pb-3 -mb-3 inline-block">
-              すべての記事 ({posts.length})
-            </span>
+  <div class="mx-auto max-w-5xl px-4 pb-20 pt-10 sm:px-6">
+    <div class="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
+      <!-- 記事一覧 -->
+      <section aria-labelledby="posts-heading">
+        <div class="mb-4 flex items-baseline justify-between border-b border-line pb-3">
+          <h2 id="posts-heading" class="text-lg font-bold text-ink">
+            記事一覧
+            <span class="ml-1 text-sm font-medium tabular-nums text-ink-muted">{posts.length}</span>
+          </h2>
+          <span class="text-xs text-ink-muted">新しい順</span>
+        </div>
+
+        {posts.length > 0 ? (
+          <div class="flex flex-col gap-3">
+            {posts.map((post) => <ArticleCard post={post} />)}
           </div>
-          <span class="text-xs text-gray-400">新しい順</span>
-        </div>
-
-        <!-- 記事一覧リスト -->
-        <div class="space-y-4">
-          {sortedPosts.length > 0 ? (
-            sortedPosts.map((post) => (
-              <ArticleCard post={post} />
-            ))
-          ) : (
-            <div class="bg-white border border-[#e8e8e8] rounded-xl p-12 text-center text-gray-400">
-              まだ記事がありません
-            </div>
-          )}
-        </div>
+        ) : (
+          <p class="rounded-2xl border border-dashed border-line-strong p-12 text-center text-sm text-ink-muted">
+            まだ記事がありません
+          </p>
+        )}
       </section>
 
       <!-- サイドバー -->
-      <aside class="lg:col-span-4 space-y-6">
-        <!-- プロフィールミニカード -->
-        <div class="bg-white border border-[#e8e8e8] rounded-xl p-5 shadow-2xs">
-          <div class="flex items-center gap-3 mb-3">
-            <img 
-              src={getRelativeUrl(SITE_CONFIG.avatar)} 
-              alt={SITE_CONFIG.author} 
-              class="w-12 h-12 rounded-full border border-gray-100 object-cover"
-            />
-            <div>
-              <h3 class="font-bold text-gray-900 text-sm">{SITE_CONFIG.author}</h3>
-              <p class="text-xs text-gray-400">{SITE_CONFIG.handle}</p>
-            </div>
-          </div>
-          <p class="text-xs text-gray-600 leading-relaxed mb-4">
-            {SITE_CONFIG.bio}
-          </p>
-          <div class="flex items-center gap-3 pt-3 border-t border-gray-100 text-xs">
-            <a 
-              href={SITE_CONFIG.xUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              class="text-gray-600 hover:text-[#2cb696] font-medium transition-colors"
-            >
-              X (Twitter)
-            </a>
-            <span class="text-gray-300">•</span>
-            <a 
-              href={SITE_CONFIG.githubUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              class="text-gray-600 hover:text-[#2cb696] font-medium transition-colors"
-            >
-              GitHub
-            </a>
-          </div>
-        </div>
-
-        <!-- タグ一覧カード -->
-        {tagCounts.length > 0 && (
-          <div class="bg-white border border-[#e8e8e8] rounded-xl p-5 shadow-2xs">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 flex items-center gap-1.5">
-              <svg class="w-4 h-4 text-[#2cb696]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-              </svg>
+      <aside class="flex flex-col gap-6 lg:sticky lg:top-20">
+        {tags.length > 0 && (
+          <section aria-labelledby="tags-heading" class="rounded-2xl border border-line bg-surface p-5">
+            <h2 id="tags-heading" class="mb-3 flex items-center gap-1.5 text-sm font-bold text-ink">
+              <Icon name="tag" class="size-4 text-accent" />
               タグ
-            </h3>
-            <div class="flex flex-wrap gap-2">
-              {tagCounts.map(({ name, count }) => (
-                <a 
-                  href={getRelativeUrl(`/tags/${name}`)} 
-                  class="inline-flex items-center gap-1.5 text-xs text-gray-600 bg-gray-50 hover:bg-emerald-50 hover:text-[#2cb696] border border-gray-100 rounded-lg px-2.5 py-1.5 transition-colors"
-                >
-                  <span>#{name}</span>
-                  <span class="text-[10px] text-gray-400 bg-white px-1.5 py-0.2 rounded-full border border-gray-100">{count}</span>
-                </a>
+            </h2>
+            <ul class="flex flex-wrap gap-1.5">
+              {tags.slice(0, SIDEBAR_TAG_LIMIT).map(({ name, count }) => (
+                <li>
+                  <a href={getRelativeUrl(`/tags/${name}/`)} class="chip px-2.5 py-1 text-xs">
+                    #{name}
+                    <span class="chip-count">{count}</span>
+                  </a>
+                </li>
               ))}
-            </div>
-          </div>
+            </ul>
+            {tags.length > SIDEBAR_TAG_LIMIT && (
+              <a href={getRelativeUrl('/tags/')} class="mt-4 inline-flex items-center gap-1 text-xs font-bold text-accent-ink hover:underline">
+                すべてのタグを見る
+                <Icon name="arrow-right" class="size-3.5" />
+              </a>
+            )}
+          </section>
         )}
-      </aside>
 
+        <a
+          href={getRelativeUrl('/rss.xml')}
+          class="group flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-line-strong"
+        >
+          <span class="grid size-9 shrink-0 place-items-center rounded-full bg-accent-soft text-accent-ink">
+            <Icon name="rss" class="size-4" />
+          </span>
+          <span class="min-w-0">
+            <span class="block text-sm font-bold text-ink group-hover:text-accent-ink">RSSで購読する</span>
+            <span class="block text-xs text-ink-muted">新しい記事をフィードリーダーで受け取れます</span>
+          </span>
+        </a>
+      </aside>
     </div>
   </div>
 </BaseLayout>

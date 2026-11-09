@@ -1,82 +1,61 @@
 ---
 import { SITE_CONFIG } from '../config';
 import { getRelativeUrl } from '../utils/url';
+import Icon from './Icon.astro';
 
 interface Props {
   totalPosts?: number;
+  totalTags?: number;
 }
 
-const { totalPosts = 1 } = Astro.props;
+const { totalPosts = 0, totalTags = 0 } = Astro.props;
 ---
 
-<div class="bg-white border-b border-[#e8e8e8] mb-8">
-  <!-- カバー画像 -->
-  <div class="h-36 sm:h-52 w-full overflow-hidden bg-gray-100 relative">
-    <img 
-      src={getRelativeUrl(SITE_CONFIG.coverImage)} 
-      alt="Cover" 
-      class="w-full h-full object-cover"
+<section class="mx-auto max-w-5xl px-4 pt-4 sm:px-6 sm:pt-6">
+  <!-- カバー画像（3:1 の比率のまま表示してトリミングしない） -->
+  <div class="overflow-hidden rounded-2xl border border-line bg-subtle sm:rounded-3xl">
+    <img
+      src={getRelativeUrl(SITE_CONFIG.coverImage)}
+      alt=""
+      width="1024"
+      height="341"
+      fetchpriority="high"
+      decoding="async"
+      class="aspect-[3/1] w-full object-cover"
     />
   </div>
 
-  <!-- プロフィール情報エリア -->
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 relative pb-6">
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between -mt-14 sm:-mt-16 mb-4 gap-4">
-      <!-- アバター & 名前 -->
-      <div class="flex items-end gap-4">
-        <div class="relative shrink-0">
-          <img 
-            src={getRelativeUrl(SITE_CONFIG.avatar)} 
-            alt={SITE_CONFIG.author} 
-            class="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-white shadow-md bg-white object-cover"
-          />
-        </div>
-        <div class="mb-1">
-          <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
-            {SITE_CONFIG.author}
-          </h1>
-          <p class="text-xs text-gray-500 mt-0.5">{SITE_CONFIG.handle}</p>
-        </div>
-      </div>
-
-      <!-- SNS & GitHub リンク -->
-      <div class="flex items-center gap-2">
-        <a 
-          href={SITE_CONFIG.xUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 text-gray-700 rounded-full hover:bg-gray-50 transition-colors text-xs font-semibold"
-          title="X (Twitter)"
-        >
-          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-          </svg>
-          <span>X</span>
+  <div class="px-1 sm:px-6">
+    <!-- アバター & リンク -->
+    <div class="-mt-8 flex items-end justify-between gap-3 sm:-mt-12">
+      <img
+        src={getRelativeUrl(SITE_CONFIG.avatar)}
+        alt={SITE_CONFIG.author}
+        width="96"
+        height="96"
+        class="relative size-[4.5rem] rounded-full border-4 border-canvas bg-surface object-cover shadow-sm sm:size-24"
+      />
+      <div class="flex items-center gap-2 pb-0.5">
+        <a href={SITE_CONFIG.xUrl} target="_blank" rel="noopener noreferrer" class="icon-btn size-9 sm:size-[2.375rem]" aria-label="X (Twitter)">
+          <Icon name="x" class="size-4" />
         </a>
-
-        <a 
-          href={SITE_CONFIG.githubUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 text-gray-700 rounded-full hover:bg-gray-50 transition-colors text-xs font-semibold"
-          title="GitHub"
-        >
-          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-          </svg>
-          <span>GitHub</span>
+        <a href={SITE_CONFIG.githubUrl} target="_blank" rel="noopener noreferrer" class="icon-btn size-9 sm:size-[2.375rem]" aria-label="GitHub">
+          <Icon name="github" class="size-[1.125rem]" />
+        </a>
+        <a href={getRelativeUrl('/rss.xml')} class="icon-btn size-9 sm:size-[2.375rem]" aria-label="RSS フィード">
+          <Icon name="rss" class="size-4" />
         </a>
       </div>
     </div>
 
-    <!-- 自己紹介文 -->
-    <p class="text-sm text-gray-700 leading-relaxed max-w-2xl">
-      {SITE_CONFIG.bio}
+    <!-- 名前 & 自己紹介 -->
+    <h1 class="headline mt-3 text-2xl font-bold tracking-tight text-ink">{SITE_CONFIG.author}</h1>
+    <p class="text-sm text-ink-muted">{SITE_CONFIG.handle}</p>
+    <p class="mt-3 max-w-2xl text-[0.9375rem] leading-relaxed text-ink-soft">{SITE_CONFIG.bio}</p>
+
+    <p class="mt-3 flex gap-5 text-sm text-ink-muted">
+      <span><span class="font-bold tabular-nums text-ink">{totalPosts}</span> 記事</span>
+      <span><span class="font-bold tabular-nums text-ink">{totalTags}</span> タグ</span>
     </p>
-
-    <!-- 記事数 -->
-    <div class="flex items-center gap-4 mt-3 text-xs text-gray-500 font-medium">
-      <span>{totalPosts} 件の投稿</span>
-    </div>
   </div>
-</div>
+</section>

@@ -1,0 +1,28 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+  /** スクロール位置に合わせて現在の見出しをハイライトする */
+  tracking?: boolean;
+}
+
+const { headings, tracking = false } = Astro.props;
+const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+<ol class="border-l border-line text-[0.8125rem] leading-snug" data-toc={tracking ? '' : undefined}>
+  {items.map((h) => (
+    <li>
+      <a
+        href={`#${h.slug}`}
+        class:list={[
+          '-ml-px block border-l-2 border-transparent py-1.5 pr-2 text-ink-muted transition-colors hover:text-ink aria-[current=true]:border-accent aria-[current=true]:font-medium aria-[current=true]:text-ink',
+          h.depth === 3 ? 'pl-6 text-xs' : 'pl-3.5',
+        ]}
+      >
+        {h.text}
+      </a>
+    </li>
+  ))}
+</ol>

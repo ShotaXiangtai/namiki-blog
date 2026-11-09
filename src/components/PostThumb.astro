@@ -1,0 +1,23 @@
+---
+import { hasCustomHeroImage, tagHue } from '../utils/design';
+
+interface Props {
+  heroImage?: string;
+  tag?: string;
+  class?: string;
+}
+
+const { heroImage, tag, class: className = '' } = Astro.props;
+const label = tag ?? 'Blog';
+---
+
+{hasCustomHeroImage(heroImage) ? (
+  <div class:list={['overflow-hidden bg-subtle', className]}>
+    <img src={heroImage} alt="" loading="lazy" decoding="async" class="size-full object-cover" />
+  </div>
+) : (
+  <div class:list={['tag-tile', className]} style={`--h: ${tagHue(label)}`} aria-hidden="true">
+    <span class="tag-tile__hash">#</span>
+    <span class="tag-tile__label">{label}</span>
+  </div>
+)}

@@ -1,6 +1,7 @@
 ---
-import { SITE_CONFIG } from '../config';
 import { getRelativeUrl, formatDate, estimateReadingTime } from '../utils/url';
+import Icon from './Icon.astro';
+import PostThumb from './PostThumb.astro';
 
 interface Props {
   post: {
@@ -16,94 +17,87 @@ interface Props {
       likes: number;
     };
   };
+  /** 記事タイトルの見出しレベル（ページ内の見出し構造に合わせる） */
+  headingLevel?: 2 | 3;
 }
 
-const { post } = Astro.props;
+const { post, headingLevel = 3 } = Astro.props;
+const Heading = `h${headingLevel}` as 'h2' | 'h3';
 const readingTime = post.body ? estimateReadingTime(post.body) : 2;
-const postUrl = getRelativeUrl(`/posts/${post.id}`);
+const postUrl = getRelativeUrl(`/posts/${post.id}/`);
+const visibleTags = post.data.tags.slice(0, 3);
+const hiddenTagCount = post.data.tags.length - visibleTags.length;
 ---
 
-<article class="bg-white border border-[#e8e8e8] rounded-xl p-5 sm:p-6 transition-all duration-200 hover:border-gray-300 hover:shadow-sm flex flex-col justify-between">
-  <!-- 著者ミニヘッダー -->
-  <div class="flex items-center justify-between mb-3 text-xs text-gray-500">
-    <div class="flex items-center gap-2">
-      <img 
-        src={getRelativeUrl(SITE_CONFIG.avatar)} 
-        alt={SITE_CONFIG.author} 
-        class="w-6 h-6 rounded-full object-cover bg-gray-100"
-      />
-      <span class="font-medium text-gray-800">{SITE_CONFIG.author}</span>
-      <span>•</span>
-      <time datetime={post.data.pubDate.toISOString()}>
-        {formatDate(post.data.pubDate)}
-      </time>
+<article class="group relative flex gap-4 rounded-2xl border border-line bg-surface p-4 transition duration-200 hover:border-line-strong hover:shadow-[0_8px_28px_-14px_rgb(0_0_0/0.22)] sm:gap-6 sm:p-5">
+  <div class="flex min-w-0 flex-1 flex-col">
+    <!-- メタ情報 -->
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted">
+      {post.data.pinned && (
+        <span class="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 font-bold text-accent-ink">
+          <Icon name="pin" class="size-3" />
+          固定
+        </span>
+      )}
+      <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+      <span aria-hidden="true">·</span>
+      <span>約{readingTime}分</span>
     </div>
 
-    {post.data.pinned && (
-      <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
-        </svg>
-        固定記事
-      </span>
-    )}
-  </div>
-
-  <!-- 本文エリア（タイトル、抜粋、サムネイル） -->
-  <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-between items-start mb-4">
-    <div class="flex-1 min-w-0">
-      <h2 class="text-lg sm:text-xl font-bold text-gray-900 group leading-snug tracking-tight mb-2">
-        <a href={postUrl} class="hover:text-[#2cb696] transition-colors">
-          {post.data.title}
-        </a>
-      </h2>
-      <p class="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-        {post.data.description}
-      </p>
-    </div>
-
-    {post.data.heroImage && (
-      <a href={postUrl} class="w-full sm:w-40 sm:h-28 shrink-0 rounded-lg overflow-hidden bg-gray-100 block aspect-video sm:aspect-auto">
-        <img 
-          src={post.data.heroImage} 
-          alt={post.data.title} 
-          loading="lazy"
-          class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-        />
+    <!-- タイトル（カード全体をクリック可能にする） -->
+    <Heading class="headline mt-1.5 text-[1.0625rem] sm:line-clamp-3 font-bold leading-snug text-ink sm:text-lg">
+      <a href={postUrl} class="transition-colors after:absolute after:inset-0 after:rounded-2xl group-hover:text-accent-ink">
+        {post.data.title}
       </a>
-    )}
-  </div>
+    </Heading>
 
-  <!-- タグ & アクションバー -->
-  <div class="flex items-center justify-between pt-3 border-t border-gray-100 mt-auto text-xs text-gray-500">
-    <div class="flex flex-wrap gap-1.5 items-center">
-      {post.data.tags.map((tag) => (
-        <a 
-          href={getRelativeUrl(`/tags/${tag}`)} 
-          class="text-gray-500 hover:text-[#2cb696] hover:bg-emerald-50 px-2 py-0.5 rounded-md transition-colors"
-        >
-          #{tag}
-        </a>
-      ))}
-    </div>
+    <p class="mt-2 line-clamp-2 hidden text-sm leading-relaxed text-ink-soft sm:block">
+      {post.data.description}
+    </p>
 
-    <div class="flex items-center gap-4 text-gray-400">
-      <!-- 読了時間目安 -->
-      <span class="hidden sm:inline-flex items-center gap-1">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" stroke-width="2"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/>
-        </svg>
-        約{readingTime}分
-      </span>
+    <!-- タグ & いいね -->
+    <div class="mt-auto flex items-end justify-between gap-3 pt-3">
+      <ul class="relative z-10 flex flex-wrap gap-x-2.5 gap-y-1 text-xs">
+        {visibleTags.map((tag) => (
+          <li>
+            <a href={getRelativeUrl(`/tags/${tag}/`)} class="text-ink-muted transition-colors hover:text-accent-ink">
+              #{tag}
+            </a>
+          </li>
+        ))}
+        {hiddenTagCount > 0 && <li class="text-ink-muted">+{hiddenTagCount}</li>}
+      </ul>
 
-      <!-- いいね（ハート）表示 -->
-      <span class="inline-flex items-center gap-1 text-gray-600" title="いいね数">
-        <svg class="w-4 h-4 text-gray-400 hover:text-[#ea3943] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-        </svg>
-        <span class="post-like-count" data-post-id={post.id}>{post.data.likes}</span>
+      <span
+        class="inline-flex shrink-0 items-center gap-1 text-xs text-ink-muted"
+        title="いいね数"
+        data-like-count={post.data.likes}
+        data-post-id={post.id}
+        hidden={post.data.likes === 0}
+      >
+        <Icon name="heart" class="size-3.5" />
+        <span class="tabular-nums">{post.data.likes}</span>
       </span>
     </div>
   </div>
+
+  <PostThumb
+    heroImage={post.data.heroImage}
+    tag={post.data.tags[0]}
+    class="aspect-[4/3] w-24 shrink-0 self-start rounded-xl sm:aspect-[16/10] sm:w-44"
+  />
 </article>
+
+<script>
+  // この端末で「いいね」した記事はカウントに反映して表示する
+  document.querySelectorAll<HTMLElement>('[data-like-count]').forEach((el) => {
+    try {
+      if (localStorage.getItem(`namiki_blog_like_${el.dataset.postId}`) !== 'true') return;
+      const count = el.querySelector('span');
+      if (count) count.textContent = String(Number(el.dataset.likeCount ?? 0) + 1);
+      el.hidden = false;
+    } catch {
+      /* localStorage が使えない環境では何もしない */
+    }
+  });
+</script>
