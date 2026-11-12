@@ -1,27 +1,27 @@
 ---
 import { getAllTags } from '../../utils/posts';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import CreatorLayout from '../../layouts/CreatorLayout.astro';
 import { getRelativeUrl } from '../../utils/url';
 
 const tags = await getAllTags();
 ---
 
-<BaseLayout title="タグ一覧" description="並木秀作のブログのタグ一覧です。関心のあるキーワードから記事を探せます。">
-  <div class="mx-auto max-w-3xl px-4 pb-20 pt-10 sm:px-6 sm:pt-14">
-    <header class="mb-8">
-      <h1 class="headline text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">タグ一覧</h1>
-      <p class="mt-2 text-sm text-ink-muted">関心のあるキーワードから記事を探せます（全{tags.length}件）</p>
-    </header>
+<CreatorLayout active="tags" title="タグ一覧" description="並木秀作のブログのタグ一覧です。関心のあるキーワードから記事を探せます。">
+  <section class="pt-6">
+    <h1 class="headline text-lg font-bold text-ink">
+      タグ一覧
+      <span class="ml-1 text-sm font-normal tabular-nums text-ink-soft">{tags.length}</span>
+    </h1>
 
-    <ul class="flex flex-wrap gap-2.5">
+    <ul class="mt-5 flex flex-wrap gap-2.5">
       {tags.map(({ name, count }) => (
         <li>
-          <a href={getRelativeUrl(`/tags/${name}/`)} class="chip px-4 py-2 text-sm font-medium">
+          <a href={getRelativeUrl(`/tags/${name}/`)} class="hashtag">
             #{name}
-            <span class="chip-count rounded-full bg-subtle px-1.5 py-px text-xs">{count}</span>
+            <span class="hashtag-count">{count}</span>
           </a>
         </li>
       ))}
     </ul>
-  </div>
-</BaseLayout>
+  </section>
+</CreatorLayout>

@@ -6,11 +6,11 @@ import LikeButton from '../../components/LikeButton.astro';
 import ShareButtons from '../../components/ShareButtons.astro';
 import AuthorBioCard from '../../components/AuthorBioCard.astro';
 import TableOfContents from '../../components/TableOfContents.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
 import PostThumb from '../../components/PostThumb.astro';
 import Icon from '../../components/Icon.astro';
 import { SITE_CONFIG } from '../../config';
 import { getRelativeUrl, formatDate, estimateReadingTime } from '../../utils/url';
-import { hasCustomHeroImage } from '../../utils/design';
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -23,17 +23,11 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
 
-// 公開済み記事の中から前後の記事・関連記事を取得
-const sortedPosts = await getPublishedPosts();
-const currentIndex = sortedPosts.findIndex((p) => p.id === post.id);
-const prevPost = currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : null;
-const nextPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
-const relatedPosts = getRelatedPosts(post, sortedPosts);
+// 公開済み記事から関連記事（足りない分は新着）を取得
+const relatedPosts = getRelatedPosts(post, await getPublishedPosts(), 4);
 
 const readingTime = post.body ? estimateReadingTime(post.body) : 3;
-const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
-const showToc = tocHeadings.length > 1;
-const showHero = hasCustomHeroImage(post.data.heroImage);
+const showToc = headings.filter((h) => h.depth === 2 || h.depth === 3).length > 1;
 const pageUrl = new URL(Astro.url.pathname, Astro.site ?? SITE_CONFIG.siteUrl).href;
 const updated =
   post.data.updatedDate && post.data.updatedDate.valueOf() > post.data.pubDate.valueOf()
@@ -50,238 +44,162 @@ const updated =
   modifiedTime={post.data.updatedDate}
   tags={post.data.tags}
 >
-  <div class="reading-progress" aria-hidden="true"></div>
+  <div class="mx-auto max-w-[80rem] px-4 sm:px-6 xl:grid xl:grid-cols-[minmax(0,1fr)_38.75rem_minmax(0,1fr)] xl:gap-10">
+    <!-- 著者（広い画面では左側に表示） -->
+    <aside class="hidden xl:block" aria-label="著者">
+      <div class="sticky top-0 w-[13.5rem] pt-10">
+        <a href={getRelativeUrl('/about/')} class="group flex items-center gap-3">
+          <img
+            src={getRelativeUrl(SITE_CONFIG.avatar)}
+            alt=""
+            width="56"
+            height="56"
+            class="size-14 shrink-0 rounded-full object-cover"
+          />
+          <span class="text-[0.9375rem] font-bold text-ink group-hover:underline">{SITE_CONFIG.author}</span>
+        </a>
+        <p class="mt-4 text-xs leading-[1.7] text-ink-soft">{SITE_CONFIG.bio}</p>
+        <a href={SITE_CONFIG.xUrl} target="_blank" rel="noopener noreferrer" aria-label="X でフォロー" class="btn btn-primary mt-4 h-8 gap-1 px-3 text-xs">
+          <Icon name="x" class="size-3" />
+          でフォロー
+        </a>
+      </div>
+    </aside>
 
-  <div class="mx-auto max-w-5xl px-4 pb-20 pt-6 sm:px-6 sm:pt-10">
-    <!-- パンくずリスト -->
-    <nav aria-label="パンくずリスト" class="mb-6 text-xs text-ink-muted">
-      <ol class="flex min-w-0 items-center gap-1.5">
-        <li class="shrink-0"><a href={getRelativeUrl('/')} class="hover:text-accent-ink">ホーム</a></li>
-        {post.data.tags[0] && (
-          <>
-            <li aria-hidden="true">/</li>
-            <li class="shrink-0">
-              <a href={getRelativeUrl(`/tags/${post.data.tags[0]}/`)} class="hover:text-accent-ink">#{post.data.tags[0]}</a>
+    <article class="mx-auto w-full max-w-[38.75rem] pb-20 pt-8 sm:pt-12" itemscope itemtype="https://schema.org/BlogPosting">
+      <!-- アイキャッチ（記事専用の画像がなければ自動生成） -->
+      <figure class="mb-10 sm:mb-12">
+        <PostThumb heroImage={post.data.heroImage} title={post.data.title} tags={post.data.tags} eager class="w-full" />
+      </figure>
+
+      <h1 itemprop="headline" class="headline text-2xl font-bold leading-[1.5] text-ink sm:text-[2rem]">
+        {post.data.title}
+      </h1>
+
+      <div class="mt-5">
+        <LikeButton postId={post.id} initialLikes={post.data.likes} variant="inline" />
+      </div>
+
+      <!-- 著者・投稿日 -->
+      <div class="mt-5 flex items-center gap-2.5">
+        <a href={getRelativeUrl('/about/')} class="shrink-0" itemprop="author" itemscope itemtype="https://schema.org/Person">
+          <img
+            src={getRelativeUrl(SITE_CONFIG.avatar)}
+            alt={SITE_CONFIG.author}
+            width="32"
+            height="32"
+            class="size-8 rounded-full object-cover"
+          />
+          <meta itemprop="name" content={SITE_CONFIG.author} />
+        </a>
+        <div class="min-w-0 text-xs leading-snug">
+          <a href={getRelativeUrl('/about/')} class="text-ink hover:underline">{SITE_CONFIG.author}</a>
+          <p class="mt-0.5 flex flex-wrap gap-x-2 text-ink-soft">
+            <time datetime={post.data.pubDate.toISOString()} itemprop="datePublished">{formatDate(post.data.pubDate)}</time>
+            {updated && (
+              <span>
+                <time datetime={updated.toISOString()} itemprop="dateModified">{formatDate(updated)}</time> 更新
+              </span>
+            )}
+            <span>約{readingTime}分で読めます</span>
+          </p>
+        </div>
+      </div>
+
+      {showToc && <TableOfContents headings={headings} class="mt-10" />}
+
+      <!-- 本文 -->
+      <div class="article-content mt-10" itemprop="articleBody">
+        <Content />
+      </div>
+
+      <!-- ハッシュタグ -->
+      {post.data.tags.length > 0 && (
+        <ul class="mt-14 flex flex-wrap gap-2" aria-label="タグ">
+          {post.data.tags.map((tag) => (
+            <li>
+              <a href={getRelativeUrl(`/tags/${tag}/`)} class="hashtag">#{tag}</a>
             </li>
-          </>
-        )}
-        <li aria-hidden="true">/</li>
-        <li class="min-w-0 truncate" aria-current="page">{post.data.title}</li>
-      </ol>
-    </nav>
+          ))}
+        </ul>
+      )}
 
-    <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:gap-12">
-      <article class="min-w-0 max-w-[44rem]" itemscope itemtype="https://schema.org/BlogPosting">
-        <!-- 記事ヘッダー -->
-        <header class="border-b border-line pb-7">
-          <ul class="mb-4 flex flex-wrap gap-1.5">
-            {post.data.tags.map((tag) => (
+      <!-- いいね・シェア -->
+      <div id="article-actions" class="mt-8 flex flex-wrap items-center justify-between gap-3 border-y border-line py-3">
+        <LikeButton postId={post.id} initialLikes={post.data.likes} variant="full" />
+        <ShareButtons title={post.data.title} url={pageUrl} />
+      </div>
+
+      <div class="mt-10">
+        <AuthorBioCard />
+      </div>
+
+      <!-- 関連記事 -->
+      {relatedPosts.length > 0 && (
+        <section aria-labelledby="related-heading" class="mt-16">
+          <h2 id="related-heading" class="headline text-lg font-bold text-ink">あわせて読みたい</h2>
+          <ul class="card-grid mt-5">
+            {relatedPosts.map((related) => (
               <li>
-                <a href={getRelativeUrl(`/tags/${tag}/`)} class="chip px-2.5 py-0.5 text-xs">#{tag}</a>
+                <ArticleCard post={related} />
               </li>
             ))}
           </ul>
-
-          <h1 itemprop="headline" class="headline text-[1.625rem] font-extrabold leading-[1.4] tracking-tight text-ink sm:text-[2.125rem]">
-            {post.data.title}
-          </h1>
-
-          <div class="mt-6 flex items-center gap-3">
-            <a href={getRelativeUrl('/about/')} class="shrink-0" itemprop="author" itemscope itemtype="https://schema.org/Person">
-              <img
-                src={getRelativeUrl(SITE_CONFIG.avatar)}
-                alt={SITE_CONFIG.author}
-                width="40"
-                height="40"
-                class="size-10 rounded-full object-cover ring-1 ring-line"
-              />
-              <meta itemprop="name" content={SITE_CONFIG.author} />
-            </a>
-            <div class="min-w-0">
-              <a href={getRelativeUrl('/about/')} class="text-sm font-bold text-ink hover:text-accent-ink">{SITE_CONFIG.author}</a>
-              <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-muted">
-                <time datetime={post.data.pubDate.toISOString()} itemprop="datePublished">{formatDate(post.data.pubDate)}</time>
-                {updated && (
-                  <span class="inline-flex items-center gap-1">
-                    <Icon name="refresh" class="size-3" />
-                    <time datetime={updated.toISOString()} itemprop="dateModified">{formatDate(updated)} 更新</time>
-                  </span>
-                )}
-                <span aria-hidden="true">·</span>
-                <span class="inline-flex items-center gap-1">
-                  <Icon name="clock" class="size-3.5" />
-                  約{readingTime}分で読めます
-                </span>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <!-- アイキャッチ画像（記事固有の画像がある場合のみ） -->
-        {showHero && (
-          <figure class="mt-8 overflow-hidden rounded-2xl border border-line bg-subtle">
-            <img src={post.data.heroImage} alt="" itemprop="image" class="aspect-[16/9] w-full object-cover" />
-          </figure>
-        )}
-
-        <!-- 目次（モバイル / タブレット） -->
-        {showToc && (
-          <details class="group mt-8 rounded-2xl border border-line bg-surface lg:hidden">
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-sm font-bold text-ink [&::-webkit-details-marker]:hidden">
-              <span class="inline-flex items-center gap-2">
-                <Icon name="list" class="size-4 text-accent" />
-                目次
-                <span class="text-xs font-medium text-ink-muted">{tocHeadings.length}項目</span>
-              </span>
-              <Icon name="chevron-down" class="size-4 text-ink-muted transition-transform group-open:rotate-180" />
-            </summary>
-            <div class="px-5 pb-5">
-              <TableOfContents headings={headings} />
-            </div>
-          </details>
-        )}
-
-        <!-- 記事本文 -->
-        <div class="article-content mt-10" itemprop="articleBody">
-          <Content />
-        </div>
-
-        <!-- 記事フッター -->
-        <footer class="mt-16 flex flex-col gap-6">
-          <div class="flex flex-col items-center justify-between gap-6 rounded-2xl border border-line bg-surface p-6 sm:flex-row">
-            <LikeButton postId={post.id} initialLikes={post.data.likes} />
-            <ShareButtons title={post.data.title} url={pageUrl} />
-          </div>
-
-          <AuthorBioCard />
-
-          {(prevPost || nextPost) && (
-            <nav aria-label="前後の記事" class="grid gap-3 sm:grid-cols-2">
-              {prevPost ? (
-                <a
-                  href={getRelativeUrl(`/posts/${prevPost.id}/`)}
-                  class="group flex flex-col gap-1.5 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-line-strong"
-                >
-                  <span class="inline-flex items-center gap-1 text-xs text-ink-muted">
-                    <Icon name="arrow-left" class="size-3.5" />
-                    前の記事
-                  </span>
-                  <span class="headline line-clamp-2 text-sm font-bold leading-snug text-ink group-hover:text-accent-ink">{prevPost.data.title}</span>
-                </a>
-              ) : (
-                <div class="hidden sm:block" />
-              )}
-              {nextPost && (
-                <a
-                  href={getRelativeUrl(`/posts/${nextPost.id}/`)}
-                  class="group flex flex-col items-end gap-1.5 rounded-2xl border border-line bg-surface p-4 text-right transition-colors hover:border-line-strong"
-                >
-                  <span class="inline-flex items-center gap-1 text-xs text-ink-muted">
-                    次の記事
-                    <Icon name="arrow-right" class="size-3.5" />
-                  </span>
-                  <span class="headline line-clamp-2 text-sm font-bold leading-snug text-ink group-hover:text-accent-ink">{nextPost.data.title}</span>
-                </a>
-              )}
-            </nav>
-          )}
-        </footer>
-
-        <!-- 関連記事 -->
-        {relatedPosts.length > 0 && (
-          <section aria-labelledby="related-heading" class="mt-14">
-            <h2 id="related-heading" class="mb-4 text-lg font-bold text-ink">あわせて読みたい</h2>
-            <ul class="grid gap-3 sm:grid-cols-3">
-              {relatedPosts.map((related) => (
-                <li class="group relative flex gap-3 rounded-2xl border border-line bg-surface p-3 transition-colors hover:border-line-strong sm:flex-col">
-                  <PostThumb
-                    heroImage={related.data.heroImage}
-                    tag={related.data.tags[0]}
-                    class="aspect-[4/3] w-24 shrink-0 rounded-xl sm:aspect-[16/10] sm:w-full"
-                  />
-                  <div class="min-w-0 sm:px-1 sm:pb-1">
-                    <a
-                      href={getRelativeUrl(`/posts/${related.id}/`)}
-                      class="headline line-clamp-3 text-sm font-bold leading-snug text-ink after:absolute after:inset-0 after:rounded-2xl group-hover:text-accent-ink"
-                    >
-                      {related.data.title}
-                    </a>
-                    <time datetime={related.data.pubDate.toISOString()} class="mt-1.5 block text-xs text-ink-muted">
-                      {formatDate(related.data.pubDate)}
-                    </time>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-      </article>
-
-      <!-- 目次（デスクトップ：追従表示） -->
-      {showToc && (
-        <aside class="hidden lg:block" aria-label="目次">
-          <div class="sticky top-24 max-h-[calc(100dvh-8rem)] overflow-y-auto pb-6">
-            <p class="mb-3 flex items-center gap-2 text-xs font-bold text-ink-muted">
-              <Icon name="list" class="size-4 text-accent" />
-              目次
-            </p>
-            <TableOfContents headings={headings} tracking />
-          </div>
-        </aside>
+        </section>
       )}
-    </div>
+    </article>
+  </div>
+
+  <!-- 右下に浮かぶ いいね・シェア（PC） -->
+  <div
+    id="floating-actions"
+    class="floating-actions fixed bottom-6 right-6 z-30 hidden items-center gap-1 rounded-full bg-canvas py-1 pl-3 pr-1 lg:flex"
+  >
+    <LikeButton postId={post.id} initialLikes={post.data.likes} variant="floating" />
+    <button type="button" id="floating-share" class="icon-btn" aria-label="この記事をシェア" title="シェア">
+      <Icon name="share" class="size-5" />
+    </button>
   </div>
 </BaseLayout>
 
 <script>
-  // ---- 目次：現在読んでいる見出しをハイライト ----
-  const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc] a')];
-  if (tocLinks.length) {
-    const entries = tocLinks
-      .map((link) => {
-        const id = decodeURIComponent((link.getAttribute('href') ?? '').slice(1));
-        const heading = document.getElementById(id);
-        return heading ? { link, heading } : null;
-      })
-      .filter((e): e is { link: HTMLAnchorElement; heading: HTMLElement } => e !== null);
+  import { pageUrl, showToast } from '../../utils/toast';
 
-    let current: HTMLAnchorElement | null = null;
-    let ticking = false;
-
-    const update = () => {
-      ticking = false;
-      const offset = 120;
-      let active = entries[0]?.link ?? null;
-      for (const { link, heading } of entries) {
-        if (heading.getBoundingClientRect().top - offset <= 0) active = link;
-        else break;
+  // ---- 右下のボタン：記事末尾のいいね欄やフッターが見えている間は隠す ----
+  const floating = document.getElementById('floating-actions');
+  const targets = [document.getElementById('article-actions'), document.querySelector('body > footer')].filter(
+    (el): el is HTMLElement => el !== null,
+  );
+  if (floating && targets.length && 'IntersectionObserver' in window) {
+    const visible = new Set<Element>();
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) visible.add(entry.target);
+        else visible.delete(entry.target);
       }
-      if (active === current) return;
-      current?.removeAttribute('aria-current');
-      active?.setAttribute('aria-current', 'true');
-      current = active;
-      // 長い目次では現在位置が見えるよう、目次の枠内だけをスクロール
-      const box = active?.closest<HTMLElement>('.overflow-y-auto');
-      if (active && box) {
-        const top = active.offsetTop - box.offsetTop;
-        if (top < box.scrollTop || top + active.offsetHeight > box.scrollTop + box.clientHeight) {
-          box.scrollTop = top - box.clientHeight / 3;
-        }
-      }
-    };
-
-    window.addEventListener(
-      'scroll',
-      () => {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(update);
-        }
-      },
-      { passive: true },
-    );
-    update();
+      floating.toggleAttribute('data-hidden', visible.size > 0);
+    });
+    targets.forEach((el) => observer.observe(el));
   }
+
+  // ---- シェア：端末の共有機能、なければリンクをコピー ----
+  document.getElementById('floating-share')?.addEventListener('click', async () => {
+    const url = pageUrl();
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: document.title, url });
+      } catch {
+        /* キャンセル時は何もしない */
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('リンクをコピーしました');
+    } catch (e) {
+      console.error('Failed to copy', e);
+    }
+  });
 
   // ---- コードブロックにコピーボタンを付与 ----
   document.querySelectorAll<HTMLPreElement>('.article-content pre').forEach((pre) => {

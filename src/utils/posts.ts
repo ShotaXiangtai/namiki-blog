@@ -22,24 +22,37 @@ export async function getPublishedPosts(): Promise<CollectionEntry<'blog'>[]> {
 }
 
 /**
- * タグの重なりが多い順に関連記事を返す（同点なら新しい順）
+ * 固定記事（pinned: true）を先頭に並べる。それ以外の順序はそのまま維持する。
+ */
+export function sortPinnedFirst<T extends CollectionEntry<'blog'>>(posts: T[]): T[] {
+  return [...posts.filter((p) => p.data.pinned), ...posts.filter((p) => !p.data.pinned)];
+}
+
+/**
+ * 関連記事を返す。タグの重なりが多い順（同点なら新しい順）に並べ、
+ * 足りない分は新しい記事で補う。
  */
 export function getRelatedPosts(
   current: CollectionEntry<'blog'>,
   posts: CollectionEntry<'blog'>[],
-  limit = 3,
+  limit = 4,
 ): CollectionEntry<'blog'>[] {
   const currentTags = new Set(current.data.tags);
-  return posts
+  const others = posts
     .filter((p) => p.id !== current.id)
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+  const related = others
     .map((post) => ({
       post,
       score: post.data.tags.filter((t) => currentTags.has(t)).length,
     }))
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score || b.post.data.pubDate.valueOf() - a.post.data.pubDate.valueOf())
-    .slice(0, limit)
     .map(({ post }) => post);
+
+  const rest = others.filter((p) => !related.includes(p));
+  return [...related, ...rest].slice(0, limit);
 }
 
 /**

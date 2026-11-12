@@ -12,64 +12,45 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const path = currentPath.startsWith(base) ? currentPath.slice(base.length) || '/' : currentPath;
 
 const navLinks = [
-  { href: '/', label: 'ホーム', active: path === '/', mobile: false },
-  { href: '/tags', label: 'タグ', active: path.startsWith('/tags'), mobile: true },
-  { href: '/about', label: '著者', active: path.startsWith('/about'), mobile: true },
+  { href: '/tags/', label: 'タグ', active: path.startsWith('/tags') },
+  { href: '/about/', label: 'プロフィール', active: path.startsWith('/about') },
 ];
 ---
 
-<header class="sticky top-0 z-40 border-b border-line bg-canvas/80 backdrop-blur-md">
-  <div class="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
-    <!-- ロゴ -->
-    <a href={getRelativeUrl('/')} class="group flex min-w-0 items-center gap-2.5">
-      <img
-        src={getRelativeUrl(SITE_CONFIG.avatar)}
-        alt=""
-        width="32"
-        height="32"
-        class="size-8 shrink-0 rounded-full object-cover ring-1 ring-line"
-      />
-      <span class="truncate text-[0.9375rem] font-bold tracking-tight text-ink transition-colors group-hover:text-accent-ink sm:text-base">
-        {SITE_CONFIG.title}
-      </span>
+<header class="bg-canvas">
+  <div class="mx-auto flex h-12 max-w-[80rem] items-center gap-4 px-4 sm:h-16 sm:px-6">
+    <!-- ロゴ（ブログ名） -->
+    <a href={getRelativeUrl('/')} class="shrink-0 text-[1.0625rem] font-bold tracking-[0.04em] text-ink sm:text-lg">
+      {SITE_CONFIG.title}
     </a>
 
-    <!-- ナビゲーション -->
-    <nav aria-label="メインメニュー" class="flex shrink-0 items-center gap-0.5 text-sm sm:gap-1">
-      {navLinks.map(({ href, label, active, mobile }) => (
+    <!-- 検索ボックス（PC） -->
+    <div class="flex min-w-0 flex-1 justify-center">
+      <button
+        type="button"
+        data-search-open
+        aria-haspopup="dialog"
+        class="hidden h-10 w-full max-w-[32.5rem] items-center gap-2.5 rounded-md border border-line px-3 text-left text-sm text-ink-muted transition-colors hover:border-line-strong md:flex"
+      >
+        <Icon name="search" class="size-5 shrink-0" />
+        <span class="flex-1 truncate">キーワードで記事を検索</span>
+        <kbd id="search-shortcut" class="kbd">Ctrl K</kbd>
+      </button>
+    </div>
+
+    <nav aria-label="メインメニュー" class="flex shrink-0 items-center gap-1">
+      <button type="button" data-search-open aria-haspopup="dialog" aria-label="記事を検索" class="icon-btn md:hidden">
+        <Icon name="search" class="size-5" />
+      </button>
+      {navLinks.map(({ href, label, active }) => (
         <a
           href={getRelativeUrl(href)}
           aria-current={active ? 'page' : undefined}
-          class:list={[
-            'items-center rounded-full px-3 py-1.5 font-medium text-ink-soft transition-colors hover:bg-subtle hover:text-ink aria-[current=page]:bg-subtle aria-[current=page]:text-ink',
-            mobile ? 'inline-flex' : 'hidden sm:inline-flex',
-          ]}
+          class="hidden rounded-md px-3 py-2 text-[0.8125rem] font-bold text-ink transition-colors hover:bg-subtle aria-[current=page]:bg-subtle sm:inline-flex"
         >
           {label}
         </a>
       ))}
-
-      <button
-        id="search-open"
-        type="button"
-        aria-label="記事を検索"
-        aria-haspopup="dialog"
-        class="ml-1 inline-flex items-center gap-2 rounded-full border border-line bg-surface p-2 text-ink-muted transition-colors hover:border-line-strong hover:text-ink md:py-1.5 md:pl-3 md:pr-1.5"
-      >
-        <Icon name="search" class="size-4" />
-        <span class="hidden text-[0.8125rem] md:inline">検索</span>
-        <kbd id="search-shortcut" class="kbd hidden md:inline-flex">Ctrl K</kbd>
-      </button>
-
-      <a
-        href={SITE_CONFIG.githubUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="GitHub リポジトリ"
-        class="hidden rounded-full p-2 text-ink-muted transition-colors hover:bg-subtle hover:text-ink sm:inline-flex"
-      >
-        <Icon name="github" class="size-[1.125rem]" />
-      </a>
     </nav>
   </div>
 </header>
@@ -81,7 +62,7 @@ const navLinks = [
     <input
       id="search-input"
       type="search"
-      placeholder="タイトル・本文の概要・タグで検索"
+      placeholder="タイトル・概要・タグで検索"
       autocomplete="off"
       autofocus
       class="h-14 w-full bg-transparent text-base text-ink outline-none placeholder:text-ink-muted [&::-webkit-search-cancel-button]:hidden"
@@ -95,7 +76,6 @@ const navLinks = [
   type SearchPost = { title: string; description: string; slug: string; tags: string[]; date: string };
 
   const dialog = document.getElementById('search-dialog') as HTMLDialogElement | null;
-  const openBtn = document.getElementById('search-open');
   const closeBtn = document.getElementById('search-close');
   const input = document.getElementById('search-input') as HTMLInputElement | null;
   const results = document.getElementById('search-results');
@@ -123,26 +103,26 @@ const navLinks = [
     s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
   const formatDate = (iso: string) =>
-    new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(iso));
+    new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(iso));
 
   function renderMessage(text: string) {
-    if (results) results.innerHTML = `<p class="px-3 py-10 text-center text-sm text-ink-muted">${text}</p>`;
+    if (results) results.innerHTML = `<p class="px-3 py-10 text-center text-sm text-ink-soft">${text}</p>`;
   }
 
   function renderList(list: SearchPost[], heading: string) {
     if (!results) return;
     results.innerHTML =
-      `<p class="px-3 pb-1 pt-2 text-xs font-bold text-ink-muted">${heading}</p>` +
+      `<p class="px-3 pb-1 pt-2 text-xs font-bold text-ink-soft">${heading}</p>` +
       list
         .map(
           (post) => `
-        <a href="${baseUrl}/posts/${encodeURIComponent(post.slug)}/" class="block rounded-xl px-3 py-2.5 transition-colors hover:bg-subtle focus-visible:bg-subtle">
-          <span class="block font-bold leading-snug text-ink">${escapeHtml(post.title)}</span>
-          <span class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted">
+        <a href="${baseUrl}/posts/${encodeURIComponent(post.slug)}/" class="block rounded-md px-3 py-2.5 transition-colors hover:bg-subtle focus-visible:bg-subtle">
+          <span class="block text-[0.9375rem] font-bold leading-snug text-ink">${escapeHtml(post.title)}</span>
+          <span class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-soft">
             <time>${formatDate(post.date)}</time>
             ${post.tags
               .slice(0, 3)
-              .map((t) => `<span class="text-accent-ink">#${escapeHtml(t)}</span>`)
+              .map((t) => `<span>#${escapeHtml(t)}</span>`)
               .join('')}
           </span>
         </a>`,
@@ -175,7 +155,7 @@ const navLinks = [
     update();
   }
 
-  openBtn?.addEventListener('click', openSearch);
+  document.querySelectorAll('[data-search-open]').forEach((btn) => btn.addEventListener('click', openSearch));
   closeBtn?.addEventListener('click', () => dialog?.close());
   input?.addEventListener('input', update);
 

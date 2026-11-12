@@ -1,23 +1,36 @@
 ---
-import { hasCustomHeroImage, tagHue } from '../utils/design';
+import { SITE_CONFIG } from '../config';
+import { eyecatchText, eyecatchTone, hasCustomHeroImage } from '../utils/design';
 
 interface Props {
   heroImage?: string;
-  tag?: string;
+  title: string;
+  tags: string[];
+  /** 幅・角丸などは呼び出し側で指定する */
   class?: string;
+  /** 記事ページ冒頭の大きなアイキャッチとして使う場合（画像を遅延読み込みしない） */
+  eager?: boolean;
 }
 
-const { heroImage, tag, class: className = '' } = Astro.props;
-const label = tag ?? 'Blog';
+const { heroImage, title, tags, class: className = '', eager = false } = Astro.props;
+const { main, sub } = eyecatchText(title, tags);
 ---
 
+<!-- 画像がない記事は note の公式アイキャッチ風に自動生成（ロゴ＋キーワード＋タグ） -->
 {hasCustomHeroImage(heroImage) ? (
-  <div class:list={['overflow-hidden bg-subtle', className]}>
-    <img src={heroImage} alt="" loading="lazy" decoding="async" class="size-full object-cover" />
-  </div>
+  <img
+    src={heroImage}
+    alt=""
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+    class:list={['aspect-[1.91/1] bg-subtle object-cover', className]}
+  />
 ) : (
-  <div class:list={['tag-tile', className]} style={`--h: ${tagHue(label)}`} aria-hidden="true">
-    <span class="tag-tile__hash">#</span>
-    <span class="tag-tile__label">{label}</span>
+  <div class:list={['eyecatch aspect-[1.91/1]', className]} data-tone={eyecatchTone(tags[0] ?? title)} aria-hidden="true">
+    <div class="eyecatch__inner">
+      <span class="eyecatch__brand">{SITE_CONFIG.title}</span>
+      <span class="eyecatch__main">{main}</span>
+      {sub && <span class="eyecatch__sub">#{sub}</span>}
+    </div>
   </div>
 )}

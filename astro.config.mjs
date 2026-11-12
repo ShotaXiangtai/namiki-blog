@@ -11,6 +11,10 @@ export default defineConfig({
   base: process.env.BASE_PATH || '/',
   trailingSlash: 'always',
   markdown: {
+    // コードブロックは note と同じく明るい背景（ダークモードでは暗い配色に切り替え）
+    shikiConfig: {
+      themes: { light: 'github-light', dark: 'github-dark' },
+    },
     // 日本語の括弧に隣接した **太字** が効かない問題を補正
     processor: satteri({
       mdastPlugins: [cjkFriendlyStrong, scrollableTables],

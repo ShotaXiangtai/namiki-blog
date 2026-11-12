@@ -1,84 +1,35 @@
 ---
-import { getPublishedPosts, getAllTags } from '../utils/posts';
-import BaseLayout from '../layouts/BaseLayout.astro';
-import ProfileBanner from '../components/ProfileBanner.astro';
+import { getPublishedPosts, sortPinnedFirst } from '../utils/posts';
+import CreatorLayout from '../layouts/CreatorLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import Icon from '../components/Icon.astro';
-import { getRelativeUrl } from '../utils/url';
 
-// 公開日時の過ぎた記事のみを取得（時間指定投稿対応）
-const posts = await getPublishedPosts();
-const tags = await getAllTags();
-const SIDEBAR_TAG_LIMIT = 16;
+// 公開日時の過ぎた記事のみを取得（時間指定投稿対応）し、固定記事を先頭に
+const posts = sortPinnedFirst(await getPublishedPosts());
+const hasPinned = posts.some((p) => p.data.pinned);
 ---
 
-<BaseLayout>
-  <!-- 著者プロフィール -->
-  <ProfileBanner totalPosts={posts.length} totalTags={tags.length} />
+<CreatorLayout active="posts">
+  <section aria-labelledby="posts-heading" class="pt-6">
+    <h2 id="posts-heading" class="sr-only">記事一覧</h2>
 
-  <div class="mx-auto max-w-5xl px-4 pb-20 pt-10 sm:px-6">
-    <div class="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_17rem]">
-      <!-- 記事一覧 -->
-      <section aria-labelledby="posts-heading">
-        <div class="mb-4 flex items-baseline justify-between border-b border-line pb-3">
-          <h2 id="posts-heading" class="text-lg font-bold text-ink">
-            記事一覧
-            <span class="ml-1 text-sm font-medium tabular-nums text-ink-muted">{posts.length}</span>
-          </h2>
-          <span class="text-xs text-ink-muted">新しい順</span>
-        </div>
+    {hasPinned && (
+      <p class="mb-3 flex items-center gap-1 text-xs text-ink-soft">
+        <Icon name="pin" class="size-3.5" />
+        固定された記事
+      </p>
+    )}
 
-        {posts.length > 0 ? (
-          <div class="flex flex-col gap-3">
-            {posts.map((post) => <ArticleCard post={post} />)}
-          </div>
-        ) : (
-          <p class="rounded-2xl border border-dashed border-line-strong p-12 text-center text-sm text-ink-muted">
-            まだ記事がありません
-          </p>
-        )}
-      </section>
-
-      <!-- サイドバー -->
-      <aside class="flex flex-col gap-6 lg:sticky lg:top-20">
-        {tags.length > 0 && (
-          <section aria-labelledby="tags-heading" class="rounded-2xl border border-line bg-surface p-5">
-            <h2 id="tags-heading" class="mb-3 flex items-center gap-1.5 text-sm font-bold text-ink">
-              <Icon name="tag" class="size-4 text-accent" />
-              タグ
-            </h2>
-            <ul class="flex flex-wrap gap-1.5">
-              {tags.slice(0, SIDEBAR_TAG_LIMIT).map(({ name, count }) => (
-                <li>
-                  <a href={getRelativeUrl(`/tags/${name}/`)} class="chip px-2.5 py-1 text-xs">
-                    #{name}
-                    <span class="chip-count">{count}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-            {tags.length > SIDEBAR_TAG_LIMIT && (
-              <a href={getRelativeUrl('/tags/')} class="mt-4 inline-flex items-center gap-1 text-xs font-bold text-accent-ink hover:underline">
-                すべてのタグを見る
-                <Icon name="arrow-right" class="size-3.5" />
-              </a>
-            )}
-          </section>
-        )}
-
-        <a
-          href={getRelativeUrl('/rss.xml')}
-          class="group flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-line-strong"
-        >
-          <span class="grid size-9 shrink-0 place-items-center rounded-full bg-accent-soft text-accent-ink">
-            <Icon name="rss" class="size-4" />
-          </span>
-          <span class="min-w-0">
-            <span class="block text-sm font-bold text-ink group-hover:text-accent-ink">RSSで購読する</span>
-            <span class="block text-xs text-ink-muted">新しい記事をフィードリーダーで受け取れます</span>
-          </span>
-        </a>
-      </aside>
-    </div>
-  </div>
-</BaseLayout>
+    {posts.length > 0 ? (
+      <ul class="card-grid xl:grid-cols-3">
+        {posts.map((post) => (
+          <li>
+            <ArticleCard post={post} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="py-16 text-center text-sm text-ink-soft">まだ記事がありません</p>
+    )}
+  </section>
+</CreatorLayout>

@@ -173,18 +173,18 @@ if (article) {
 
     <!-- Theme -->
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f7f8f7" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0f1211" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#202a30" media="(prefers-color-scheme: dark)" />
 
-    <!-- Google Fonts: Noto Sans JP -->
+    <!-- Google Fonts: Noto Sans JP（Mac / iOS ではヒラギノを優先するため読み込まれません） -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
   </head>
   <body class="bg-canvas text-ink font-sans">
     <a
       href="#main"
-      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[70] focus:rounded-full focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:shadow-lg"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[70] focus:rounded-md focus:bg-btn focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-btn-ink"
     >
       本文へスキップ
     </a>
@@ -196,5 +196,8 @@ if (article) {
     </main>
 
     <Footer />
+
+    <!-- いいね・リンクコピー時の通知 -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </body>
 </html>

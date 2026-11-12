@@ -4,77 +4,95 @@ import Icon from './Icon.astro';
 interface Props {
   postId: string;
   initialLikes?: number;
+  /**
+   * inline: タイトル下の小さなハート / floating: 右下に浮かぶハート / full: 記事末尾のボタン
+   * 同じページ内のいいねボタンはすべて同じ状態に同期する
+   */
+  variant?: 'inline' | 'floating' | 'full';
 }
 
-const { postId, initialLikes = 0 } = Astro.props;
+const { postId, initialLikes = 0, variant = 'full' } = Astro.props;
+
+const variantClass = {
+  inline: 'gap-1.5 text-[0.8125rem] text-ink-soft hover:text-heart',
+  floating: 'gap-1.5 text-sm text-ink-soft hover:text-heart',
+  full: 'h-10 gap-1.5 rounded-full border border-line-strong px-4 text-sm font-bold text-ink hover:border-heart hover:text-heart aria-pressed:border-heart',
+}[variant];
+const iconClass = variant === 'floating' ? 'size-6' : 'size-5';
 ---
 
-<div class="flex flex-col items-center gap-2 sm:flex-row sm:gap-3">
-  <button
-    id="article-like-btn"
-    type="button"
-    data-post-id={postId}
-    data-initial-likes={initialLikes}
-    aria-pressed="false"
-    class="group inline-flex items-center gap-2 rounded-full border border-line-strong bg-surface px-5 py-2.5 text-[0.9375rem] font-bold text-ink-soft transition hover:border-heart/50 hover:text-heart active:scale-95 aria-pressed:border-heart/60 aria-pressed:bg-heart/10 aria-pressed:text-heart"
-  >
-    <span id="like-heart-icon" class="inline-flex transition-transform duration-200 group-aria-pressed:[&>svg]:fill-current">
-      <Icon name="heart" class="size-5" />
-    </span>
-    <span>いいね</span>
-    <span id="like-count" class="tabular-nums">{initialLikes}</span>
-  </button>
-
-  <p id="like-message" class="text-xs text-ink-muted">記事が役に立ったら応援してください</p>
-</div>
+<button
+  type="button"
+  data-like-button
+  data-post-id={postId}
+  data-initial-likes={initialLikes}
+  aria-pressed="false"
+  aria-label={`いいね ${initialLikes}`}
+  class:list={['inline-flex items-center transition-colors aria-pressed:text-heart', variantClass]}
+>
+  <span data-like-icon class="inline-flex">
+    <Icon name="heart" class={iconClass} />
+  </span>
+  {variant === 'full' && <span>いいね</span>}
+  <span data-like-count class="tabular-nums">{initialLikes}</span>
+</button>
 
 <script>
-  const likeBtn = document.getElementById('article-like-btn');
-  const heartIcon = document.getElementById('like-heart-icon');
-  const likeCount = document.getElementById('like-count');
-  const likeMessage = document.getElementById('like-message');
+  import { showToast } from '../utils/toast';
 
-  if (likeBtn && likeCount) {
-    const postId = likeBtn.dataset.postId || '';
-    const initialLikes = parseInt(likeBtn.dataset.initialLikes || '0', 10);
-    const storageKey = `namiki_blog_like_${postId}`;
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-like-button]')];
+  const storageKey = (id: string) => `namiki_blog_like_${id}`;
+  const liked = new Map<string, boolean>();
 
-    const read = () => {
-      try {
-        return localStorage.getItem(storageKey) === 'true';
-      } catch {
-        return false;
-      }
-    };
-    const write = (value: boolean) => {
-      try {
-        localStorage.setItem(storageKey, String(value));
-      } catch {
-        /* 保存できない環境ではページ内だけで反映 */
-      }
-    };
+  const read = (id: string) => {
+    try {
+      return localStorage.getItem(storageKey(id)) === 'true';
+    } catch {
+      return false;
+    }
+  };
+  const write = (id: string, value: boolean) => {
+    try {
+      localStorage.setItem(storageKey(id), String(value));
+    } catch {
+      /* 保存できない環境ではページ内だけで反映 */
+    }
+  };
 
-    let isLiked = read();
+  const render = (id: string) => {
+    const isLiked = liked.get(id) ?? false;
+    for (const btn of buttons) {
+      if (btn.dataset.postId !== id) continue;
+      const count = Number(btn.dataset.initialLikes ?? 0) + (isLiked ? 1 : 0);
+      btn.setAttribute('aria-pressed', String(isLiked));
+      btn.setAttribute('aria-label', `いいね ${count}`);
+      const countEl = btn.querySelector('[data-like-count]');
+      if (countEl) countEl.textContent = String(count);
+    }
+  };
 
-    const render = () => {
-      likeBtn.setAttribute('aria-pressed', String(isLiked));
-      likeCount.textContent = String(initialLikes + (isLiked ? 1 : 0));
-      if (likeMessage) {
-        likeMessage.textContent = isLiked ? 'ありがとうございます！' : '記事が役に立ったら応援してください';
-      }
-    };
+  for (const btn of buttons) {
+    const id = btn.dataset.postId ?? '';
+    if (!liked.has(id)) {
+      liked.set(id, read(id));
+      render(id);
+    }
 
-    render();
+    btn.addEventListener('click', () => {
+      const next = !liked.get(id);
+      liked.set(id, next);
+      write(id, next);
+      render(id);
 
-    likeBtn.addEventListener('click', () => {
-      isLiked = !isLiked;
-      write(isLiked);
-      render();
-      if (isLiked && heartIcon && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        heartIcon.animate(
-          [{ transform: 'scale(1)' }, { transform: 'scale(1.35)' }, { transform: 'scale(1)' }],
-          { duration: 320, easing: 'cubic-bezier(.3,1.6,.6,1)' },
-        );
+      if (next) {
+        showToast('いいね！ありがとうございます');
+        const icon = btn.querySelector('[data-like-icon]');
+        if (icon && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          icon.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.3)' }, { transform: 'scale(1)' }], {
+            duration: 320,
+            easing: 'cubic-bezier(.3,1.6,.6,1)',
+          });
+        }
       }
     });
   }

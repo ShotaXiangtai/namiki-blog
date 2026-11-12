@@ -1,0 +1,72 @@
+---
+/**
+ * note のクリエイターページ風レイアウト
+ * カバー画像 → 左にプロフィール、右にタブ（記事 / タグ / プロフィール）と本文
+ */
+import BaseLayout from './BaseLayout.astro';
+import CreatorProfile from '../components/CreatorProfile.astro';
+import { SITE_CONFIG } from '../config';
+import { getAllTags } from '../utils/posts';
+import { getRelativeUrl } from '../utils/url';
+
+type Tab = 'posts' | 'tags' | 'about';
+
+interface Props {
+  title?: string;
+  description?: string;
+  active: Tab;
+  /** タブのページそのものか（タグ詳細ページなど配下のページでは false） */
+  exact?: boolean;
+}
+
+const { title, description, active, exact = true } = Astro.props;
+const tags = active === 'tags' ? [] : await getAllTags();
+
+const tabs: { key: Tab; label: string; href: string }[] = [
+  { key: 'posts', label: '記事', href: getRelativeUrl('/') },
+  { key: 'tags', label: 'タグ', href: getRelativeUrl('/tags/') },
+  { key: 'about', label: 'プロフィール', href: getRelativeUrl('/about/') },
+];
+---
+
+<BaseLayout title={title} description={description}>
+  <!-- カバー画像（画面幅いっぱい） -->
+  <div class="h-[clamp(7.5rem,22vw,18.75rem)] w-full overflow-hidden bg-subtle">
+    <img
+      src={getRelativeUrl(SITE_CONFIG.coverImage)}
+      alt=""
+      width="1024"
+      height="341"
+      fetchpriority="high"
+      decoding="async"
+      class="size-full object-cover object-[50%_40%]"
+    />
+  </div>
+
+  <div class="mx-auto max-w-[80rem] px-4 pb-20 sm:px-6 lg:grid lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:gap-14 lg:px-8">
+    <aside class="pt-6 lg:pt-10" aria-label="著者プロフィール">
+      <CreatorProfile nameAsHeading={active === 'posts'} tags={tags} />
+    </aside>
+
+    <div class="min-w-0 pt-8 lg:pt-7">
+      <nav aria-label="ブログ内メニュー" class="border-b border-line">
+        <ul class="-mb-px flex">
+          {tabs.map(({ key, label, href }) => (
+            <li>
+              <a
+                href={href}
+                aria-current={key === active ? (exact ? 'page' : 'true') : undefined}
+                data-active={key === active ? '' : undefined}
+                class="inline-flex h-12 items-center border-b-2 border-transparent px-4 text-sm text-ink transition-colors hover:text-ink-soft data-active:border-ink data-active:font-bold"
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <slot />
+    </div>
+  </div>
+</BaseLayout>

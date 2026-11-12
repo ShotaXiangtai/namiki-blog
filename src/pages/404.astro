@@ -1,30 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Icon from '../components/Icon.astro';
 import { getRelativeUrl } from '../utils/url';
 ---
 
 <BaseLayout title="ページが見つかりませんでした (404)">
-  <div class="mx-auto max-w-xl px-4 py-24 text-center sm:py-32">
-    <p class="font-mono text-6xl font-extrabold tracking-tight text-accent">404</p>
-    <h1 class="headline mt-4 text-2xl font-bold text-ink">ページが見つかりませんでした</h1>
-    <p class="mt-3 text-sm leading-relaxed text-ink-muted">
+  <div class="mx-auto max-w-[38.75rem] px-4 py-24 text-center sm:py-32">
+    <p class="text-5xl font-bold tracking-[0.04em] text-ink-muted">404</p>
+    <h1 class="headline mt-5 text-2xl font-bold text-ink">ページが見つかりませんでした</h1>
+    <p class="mt-3 text-sm leading-relaxed text-ink-soft">
       お探しの記事は移動または削除されたか、URLが間違っている可能性があります。
     </p>
     <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-      <a
-        href={getRelativeUrl('/')}
-        class="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-bold text-canvas transition-opacity hover:opacity-85"
-      >
-        <Icon name="arrow-left" class="size-4" />
-        トップページへ戻る
-      </a>
-      <a
-        href={getRelativeUrl('/tags/')}
-        class="inline-flex items-center gap-2 rounded-full border border-line-strong bg-surface px-6 py-3 text-sm font-bold text-ink-soft transition-colors hover:bg-subtle hover:text-ink"
-      >
-        タグから探す
-      </a>
+      <a href={getRelativeUrl('/')} class="btn btn-primary px-6">トップページへ戻る</a>
+      <a href={getRelativeUrl('/tags/')} class="btn btn-outline px-6">タグから探す</a>
     </div>
   </div>
 </BaseLayout>

@@ -1,6 +1,6 @@
 ---
 import { getPublishedPosts } from '../../utils/posts';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import CreatorLayout from '../../layouts/CreatorLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import Icon from '../../components/Icon.astro';
 import { getRelativeUrl } from '../../utils/url';
@@ -23,37 +23,26 @@ const { tag } = Astro.params;
 const { posts } = Astro.props;
 ---
 
-<BaseLayout title={`#${tag} の記事一覧`} description={`「${tag}」タグが付いた記事の一覧です（${posts.length}件）。`}>
-  <div class="mx-auto max-w-3xl px-4 pb-20 pt-6 sm:px-6 sm:pt-10">
-    <nav aria-label="パンくずリスト" class="mb-6 text-xs text-ink-muted">
-      <ol class="flex items-center gap-1.5">
-        <li><a href={getRelativeUrl('/')} class="hover:text-accent-ink">ホーム</a></li>
-        <li aria-hidden="true">/</li>
-        <li><a href={getRelativeUrl('/tags/')} class="hover:text-accent-ink">タグ</a></li>
-        <li aria-hidden="true">/</li>
-        <li aria-current="page" class="text-ink-soft">#{tag}</li>
-      </ol>
-    </nav>
+<CreatorLayout
+  active="tags"
+  exact={false}
+  title={`#${tag} の記事一覧`}
+  description={`「${tag}」タグが付いた記事の一覧です（${posts.length}件）。`}
+>
+  <section class="pt-6">
+    <a href={getRelativeUrl('/tags/')} class="inline-flex items-center gap-1 text-xs text-ink-soft hover:text-ink">
+      <Icon name="arrow-left" class="size-3.5" />
+      タグ一覧
+    </a>
+    <h1 class="headline mt-2 text-2xl font-bold text-ink">#{tag}</h1>
+    <p class="mt-1 text-sm text-ink-soft">{posts.length}件の記事</p>
 
-    <header class="mb-8">
-      <h1 class="headline flex items-baseline gap-1 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-        <span class="text-accent">#</span>{tag}
-      </h1>
-      <p class="mt-2 text-sm text-ink-muted">{posts.length}件の記事</p>
-    </header>
-
-    <div class="flex flex-col gap-3">
-      {posts.map((post) => <ArticleCard post={post} headingLevel={2} />)}
-    </div>
-
-    <div class="mt-12 text-center">
-      <a
-        href={getRelativeUrl('/tags/')}
-        class="inline-flex items-center gap-1.5 rounded-full border border-line-strong bg-surface px-5 py-2.5 text-sm font-bold text-ink-soft transition-colors hover:bg-subtle hover:text-ink"
-      >
-        <Icon name="arrow-left" class="size-4" />
-        すべてのタグを見る
-      </a>
-    </div>
-  </div>
-</BaseLayout>
+    <ul class="card-grid mt-6 xl:grid-cols-3">
+      {posts.map((post) => (
+        <li>
+          <ArticleCard post={post} headingLevel={2} />
+        </li>
+      ))}
+    </ul>
+  </section>
+</CreatorLayout>

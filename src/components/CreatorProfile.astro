@@ -1,0 +1,76 @@
+---
+import { SITE_CONFIG } from '../config';
+import { getRelativeUrl } from '../utils/url';
+import Icon from './Icon.astro';
+
+interface Props {
+  /** 著者名を見出し（h1）として出すか（ホームのみ） */
+  nameAsHeading?: boolean;
+  /** PC表示でタグ一覧を出すか */
+  tags?: { name: string; count: number }[];
+}
+
+const { nameAsHeading = false, tags = [] } = Astro.props;
+const Name = nameAsHeading ? 'h1' : 'p';
+const SIDEBAR_TAG_LIMIT = 14;
+---
+
+<div>
+  <!-- アイコン・名前 -->
+  <div class="flex items-center gap-3">
+    <img
+      src={getRelativeUrl(SITE_CONFIG.avatar)}
+      alt=""
+      width="56"
+      height="56"
+      class="size-14 shrink-0 rounded-full object-cover"
+    />
+    <div class="min-w-0">
+      <Name class="headline text-lg font-bold leading-snug text-ink">{SITE_CONFIG.author}</Name>
+      <p class="text-xs text-ink-soft">{SITE_CONFIG.handle}</p>
+    </div>
+  </div>
+
+  <!-- 自己紹介 -->
+  <p class="mt-4 text-sm leading-[1.7] text-ink">{SITE_CONFIG.bio}</p>
+
+  <!-- SNS -->
+  <div class="-ml-2 mt-3 flex items-center">
+    <a href={SITE_CONFIG.xUrl} target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="X (Twitter)">
+      <Icon name="x" class="size-[1.125rem]" />
+    </a>
+    <a href={SITE_CONFIG.githubUrl} target="_blank" rel="noopener noreferrer" class="icon-btn" aria-label="GitHub">
+      <Icon name="github" class="size-5" />
+    </a>
+    <a href={getRelativeUrl('/rss.xml')} class="icon-btn" aria-label="RSS フィード">
+      <Icon name="rss" class="size-5" />
+    </a>
+  </div>
+
+  <a href={SITE_CONFIG.xUrl} target="_blank" rel="noopener noreferrer" aria-label="X でフォロー" class="btn btn-primary mt-3 w-full gap-1">
+    <Icon name="x" class="size-3.5" />
+    でフォロー
+  </a>
+
+  <!-- タグ（PCのみ。スマホは「タグ」タブから） -->
+  {tags.length > 0 && (
+    <section aria-labelledby="sidebar-tags" class="mt-10 hidden lg:block">
+      <h2 id="sidebar-tags">
+        <a href={getRelativeUrl('/tags/')} class="inline-flex items-center gap-0.5 text-base font-bold text-ink hover:underline">
+          タグ
+          <Icon name="chevron-right" class="size-4" />
+        </a>
+      </h2>
+      <ul class="mt-3 flex flex-wrap gap-2">
+        {tags.slice(0, SIDEBAR_TAG_LIMIT).map(({ name, count }) => (
+          <li>
+            <a href={getRelativeUrl(`/tags/${name}/`)} class="hashtag px-3 py-1.5 text-[0.8125rem]">
+              #{name}
+              <span class="hashtag-count">{count}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</div>

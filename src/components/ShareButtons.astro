@@ -11,62 +11,51 @@ const u = encodeURIComponent(url);
 const t = encodeURIComponent(title);
 
 const services = [
-  { label: 'X でシェア', href: `https://twitter.com/intent/tweet?text=${t}&url=${u}`, icon: 'x' as const, hover: 'hover:bg-black hover:text-white hover:border-black' },
-  { label: 'Facebook でシェア', href: `https://www.facebook.com/sharer/sharer.php?u=${u}`, icon: 'facebook' as const, hover: 'hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2]' },
-  { label: 'LINE で送る', href: `https://social-plugins.line.me/lineit/share?url=${u}`, icon: 'line' as const, hover: 'hover:bg-[#06C755] hover:text-white hover:border-[#06C755]' },
+  { label: 'X でシェア', href: `https://twitter.com/intent/tweet?text=${t}&url=${u}`, icon: 'x' as const, size: 'size-4' },
+  { label: 'Facebook でシェア', href: `https://www.facebook.com/sharer/sharer.php?u=${u}`, icon: 'facebook' as const, size: 'size-[1.125rem]' },
+  { label: 'LINE で送る', href: `https://social-plugins.line.me/lineit/share?url=${u}`, icon: 'line' as const, size: 'size-[1.125rem]' },
 ];
 const hatenaHref = `https://b.hatena.ne.jp/add?mode=confirm&url=${u}&title=${t}`;
 ---
 
-<div class="flex flex-col items-center gap-2 sm:items-end">
-  <span class="text-xs font-bold text-ink-muted">シェアする</span>
-  <div class="flex items-center gap-2">
-    {services.map(({ label, href, icon, hover }) => (
-      <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} title={label} class:list={['icon-btn', hover]}>
-        <Icon name={icon} class="size-4" />
+<ul class="flex items-center" aria-label="この記事をシェア">
+  {services.map(({ label, href, icon, size }) => (
+    <li>
+      <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} title={label} class="icon-btn">
+        <Icon name={icon} class={size} />
       </a>
-    ))}
+    </li>
+  ))}
+  <li>
     <a
       href={hatenaHref}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="はてなブックマークに追加"
       title="はてなブックマークに追加"
-      class="icon-btn text-[0.8125rem] font-extrabold tracking-tight hover:border-[#00A4DE] hover:bg-[#00A4DE] hover:text-white"
+      class="icon-btn text-[0.8125rem] font-bold tracking-tight"
     >
       B!
     </a>
-    <button
-      id="copy-link-btn"
-      type="button"
-      data-url={url}
-      aria-label="リンクをコピー"
-      title="リンクをコピー"
-      class="icon-btn data-copied:border-accent data-copied:text-accent-ink"
-    >
-      <span class="copy-idle"><Icon name="link" class="size-4" /></span>
-      <span class="copy-done hidden"><Icon name="check" class="size-4" /></span>
+  </li>
+  <li>
+    <button type="button" data-copy-link={url} aria-label="リンクをコピー" title="リンクをコピー" class="icon-btn">
+      <Icon name="link" class="size-[1.125rem]" />
     </button>
-  </div>
-</div>
+  </li>
+</ul>
 
 <script>
-  const copyBtn = document.getElementById('copy-link-btn');
-  copyBtn?.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(copyBtn.dataset.url || location.href);
-      copyBtn.setAttribute('data-copied', '');
-      copyBtn.setAttribute('aria-label', 'コピーしました');
-      copyBtn.querySelector('.copy-idle')?.classList.add('hidden');
-      copyBtn.querySelector('.copy-done')?.classList.remove('hidden');
-      setTimeout(() => {
-        copyBtn.removeAttribute('data-copied');
-        copyBtn.setAttribute('aria-label', 'リンクをコピー');
-        copyBtn.querySelector('.copy-idle')?.classList.remove('hidden');
-        copyBtn.querySelector('.copy-done')?.classList.add('hidden');
-      }, 2000);
-    } catch (e) {
-      console.error('Failed to copy', e);
-    }
+  import { showToast } from '../utils/toast';
+
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-link]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copyLink || location.href);
+        showToast('リンクをコピーしました');
+      } catch (e) {
+        console.error('Failed to copy', e);
+      }
+    });
   });
 </script>

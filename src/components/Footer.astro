@@ -6,56 +6,40 @@ const year = new Date().getFullYear();
 
 const links = [
   { href: getRelativeUrl('/'), label: 'ホーム' },
-  { href: getRelativeUrl('/tags'), label: 'タグ一覧' },
-  { href: getRelativeUrl('/about'), label: '著者紹介' },
+  { href: getRelativeUrl('/tags/'), label: 'タグ一覧' },
+  { href: getRelativeUrl('/about/'), label: 'プロフィール' },
   { href: getRelativeUrl('/rss.xml'), label: 'RSS' },
   { href: SITE_CONFIG.xUrl, label: 'X (Twitter)', external: true },
   { href: SITE_CONFIG.githubUrl, label: 'GitHub', external: true },
 ];
 ---
 
-<footer class="border-t border-line bg-surface">
-  <div class="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-    <div class="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
-      <div class="max-w-sm">
-        <a href={getRelativeUrl('/')} class="inline-flex items-center gap-2.5 font-bold text-ink hover:text-accent-ink">
-          <img
-            src={getRelativeUrl(SITE_CONFIG.avatar)}
-            alt=""
-            width="28"
-            height="28"
-            loading="lazy"
-            class="size-7 rounded-full object-cover ring-1 ring-line"
-          />
-          {SITE_CONFIG.title}
-        </a>
-        <p class="mt-3 text-sm leading-relaxed text-ink-soft">{SITE_CONFIG.description}</p>
-      </div>
+<footer class="border-t border-line bg-canvas">
+  <div class="mx-auto max-w-[80rem] px-4 py-10 sm:px-6">
+    <a href={getRelativeUrl('/')} class="text-[0.9375rem] font-bold tracking-[0.04em] text-ink">{SITE_CONFIG.title}</a>
 
-      <nav aria-label="フッターメニュー" class="grid grid-cols-2 gap-x-12 gap-y-2.5 text-sm sm:grid-cols-3 sm:gap-x-10">
+    <nav aria-label="フッターメニュー" class="mt-4">
+      <ul class="flex flex-wrap gap-x-6 gap-y-2 text-[0.8125rem] text-ink-soft">
         {links.map(({ href, label, external }) => (
-          <a
-            href={href}
-            class="text-ink-soft transition-colors hover:text-accent-ink"
-            {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-          >
-            {label}
-          </a>
+          <li>
+            <a
+              href={href}
+              class="transition-colors hover:text-ink"
+              {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
+              {label}
+            </a>
+          </li>
         ))}
-      </nav>
-    </div>
+      </ul>
+    </nav>
 
-    <div class="mt-10 flex flex-col gap-2 border-t border-line pt-6 text-xs leading-relaxed text-ink-muted sm:flex-row sm:items-center sm:justify-between">
-      <p>© {year} {SITE_CONFIG.author}</p>
-      <p>
-        文章：
-        <a href="https://creativecommons.org/licenses/by/4.0/deed.ja" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-ink">CC BY 4.0</a>
-        <span aria-hidden="true" class="mx-1">/</span>
-        コード：
-        <a href={`${SITE_CONFIG.githubUrl}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-ink">MIT License</a>
-        <span aria-hidden="true" class="mx-1.5">·</span>
-        Astro + GitHub Pages
-      </p>
-    </div>
+    <p class="mt-6 text-xs leading-relaxed text-ink-soft">
+      © {year} {SITE_CONFIG.author}
+      <span aria-hidden="true" class="mx-1.5">·</span>
+      文章：<a href="https://creativecommons.org/licenses/by/4.0/deed.ja" target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-ink">CC BY 4.0</a>
+      <span aria-hidden="true" class="mx-1">/</span>
+      コード：<a href={`${SITE_CONFIG.githubUrl}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer" class="underline underline-offset-2 hover:text-ink">MIT License</a>
+    </p>
   </div>
 </footer>
